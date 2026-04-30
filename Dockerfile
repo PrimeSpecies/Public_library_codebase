@@ -5,10 +5,15 @@ RUN apt-get update && apt-get install -y libpq-dev zip unzip git \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-COPY . /var/www/html/
+# Copy composer files first
+COPY composer.json composer.lock /var/www/html/
 
+# Install dependencies
 WORKDIR /var/www/html
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+
+# Copy rest of project
+COPY . /var/www/html/
 
 # Point Apache to public/
 RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
