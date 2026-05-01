@@ -111,7 +111,7 @@ public function verifyCredentials($email, $password) {
     return ['success' => false, 'message' => "Invalid email or password."];
 }
 
-  public function verify2FA($userEmail, $inputCode) {
+  public function       verify2FA($userEmail, $inputCode) {
     $user = $this->findByEmail($userEmail);
     if (!$user || empty($user['google_2fa_secret'])) {
         return false;
@@ -240,29 +240,29 @@ private function mailUser($to, $subject, $otpCode) {
     $mail = new PHPMailer(true);
 
     try {
-        // 1. Gmail SMTP Settings
         $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
+        $mail->Host       = getenv('MAIL_HOST') ?: 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'kenvosamuel@gmail.com'; // Your real Gmail address
-        $mail->Password   = 'bith djif xhag usun';   // THE 16-CHAR APP PASSWORD YOU JUST COPIED
+        $mail->Username   = getenv('MAIL_USERNAME');
+        $mail->Password   = getenv('MAIL_PASSWORD');
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
-        // 2. Localhost Fix (Ensures Windows/XAMPP doesn't block the connection)
-        $mail->SMTPOptions = array(
-            'ssl' => array(
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-                'allow_self_signed' => true
-            )
-        );
+        // Remove the SMTPOptions block entirely on Render
+        // It was only needed for localhost/XAMPP self-signed certs
+        if (getenv('APP_ENV') === 'local') {
+            $mail->SMTPOptions = [
+                'ssl' => [
+                    'verify_peer'       => false,
+                    'verify_peer_name'  => false,
+                    'allow_self_signed' => true
+                ]
+            ];
+        }
 
-        // 3. Sender & Recipient
-        $mail->setFrom('kenvosamuel@gmail.com', 'Digital Library project');
+        $mail->setFrom(getenv('MAIL_USERNAME'), 'Digital Library Project');
         $mail->addAddress($to);
 
-        // 4. The Email Design
         $mail->isHTML(true);
         $mail->Subject = $subject;
         $mail->Body    = "
@@ -278,7 +278,6 @@ private function mailUser($to, $subject, $otpCode) {
         $mail->send();
         return true;
     } catch (Exception $e) {
-        // Check C:\xampp\php\logs\php_error_log if this returns false
         error_log("Mail Error: {$mail->ErrorInfo}");
         return false;
     }
