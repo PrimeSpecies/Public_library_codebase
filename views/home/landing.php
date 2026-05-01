@@ -165,15 +165,77 @@
 
         /* --- RESPONSIVE MEDIA QUERIES --- */
 
-        @media (max-width: 768px) {
-            .navbar { position: relative; padding: 15px 0; }
-            .nav-content { flex-direction: column; gap: 15px; }
-            .hero { padding: 60px 0; }
-            .stats-grid { flex-direction: column; align-items: center; }
-            .cta-buttons { flex-direction: column; align-items: center; width: 100%; }
-            .btn { width: 100%; max-width: 300px; }
-            .card { padding: 25px; }
-        }
+       /* --- RESPONSIVE MEDIA QUERIES (UPDATED) --- */
+
+@media (max-width: 768px) {
+    /* 1. The Header: Keep horizontal, add a slight background for readability */
+    .navbar { 
+        position: absolute; 
+        padding: 12px 0; 
+        background: rgba(255, 255, 255, 0.95); /* Slight white tint */
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .nav-content { 
+        flex-direction: row; /* Forces logo and buttons to stay on the same line */
+        justify-content: space-between; 
+        gap: 10px; 
+    }
+
+    .logo { 
+        font-size: 1.25rem; /* Slightly smaller logo for mobile */
+    }
+
+    .nav-auth {
+        display: flex;
+        align-items: center;
+        gap: 12px; /* Tighter spacing between Login and Create Account */
+    }
+
+    .nav-auth .btn-link { 
+        margin-right: 0; 
+        font-size: 0.9rem; 
+    }
+
+    /* Shrink the nav button so it doesn't break the layout */
+    .nav-auth .btn { 
+        padding: 8px 14px; 
+        font-size: 0.85rem; 
+        border-radius: 8px;
+    }
+
+    /* 2. Adjust Hero padding so the text doesn't hide behind the navbar */
+    .hero { 
+        padding: 120px 0 60px; 
+    }
+
+    /* 3. Hero & CTA Buttons: Better touch targets */
+    .cta-buttons { 
+        flex-direction: column; 
+        align-items: stretch; /* Forces buttons to be exactly the same width */
+        width: 100%; 
+        padding: 0 10px;
+    }
+
+    .btn { 
+        width: 100%; 
+        max-width: 100%; /* Removes previous constraints */
+        padding: 15px 20px; /* Taller padding for easier thumb tapping */
+        font-size: 1rem;
+        justify-content: center;
+    }
+
+    /* 4. Fix other layouts */
+    .stats-grid { flex-direction: column; align-items: center; gap: 30px; }
+    .card { padding: 25px; }
+}
+
+/* For extremely narrow phones (like iPhone SE) */
+@media (max-width: 380px) {
+    .logo { font-size: 1.1rem; }
+    .nav-auth .btn { padding: 6px 10px; font-size: 0.8rem; }
+    .nav-auth .btn-link { display: none; } /* Hides plain text 'Login' if it gets too cramped */
+}
 
         @media (max-width: 480px) {
             .hero-title { font-size: 2.5rem; }
