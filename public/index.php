@@ -6,10 +6,10 @@ use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 
 // 2. Then the physical links to the files
-require_once __DIR__ . '/../../libs/phpmailer/Exception.php';
-require_once __DIR__ . '/../../libs/phpmailer/PHPMailer.php';
-require_once __DIR__ . '/../../libs/phpmailer/SMTP.php';
-require_once __DIR__ . '/../../database/Database.php';
+require_once __DIR__ . '/../libs/phpmailer/Exception.php';
+require_once __DIR__ . '/../libs/phpmailer/PHPMailer.php';
+require_once __DIR__ . '/../libs/phpmailer/SMTP.php';
+
 
 
 // 1. Session Setup
