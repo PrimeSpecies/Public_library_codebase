@@ -398,10 +398,12 @@ $currentFolderId = $_GET['folder_id'] ?? null;
         <div class="modal-header">
             <div style="display:flex;align-items:center;gap:10px;min-width:0;">
                 <i data-lucide="file-text" style="color:var(--accent);width:18px;flex-shrink:0;"></i>
-                <span id="modal-title" class="mono" style="font-weight:600;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Document Preview</span>
+                <span id="modal-title" class="mono" style="font-weight:600;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                    <?= __('preview.title') ?>
+                </span>
             </div>
             <button onclick="closePreview()" style="background:var(--red-soft);color:var(--red);border:none;padding:7px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.8rem;font-family:var(--sans);white-space:nowrap;flex-shrink:0;">
-                ✕ Close
+                ✕ <?= __('preview.close') ?>
             </button>
         </div>
         <iframe id="preview-frame" style="flex-grow:1;border:none;" src=""></iframe>
@@ -412,34 +414,42 @@ $currentFolderId = $_GET['folder_id'] ?? null;
 <div id="advsearch-modal">
     <div class="advsearch-box">
         <div class="advsearch-header">
-            <h3>Advanced Search</h3>
+            <h3><?= __('search.advanced_title') ?></h3>
             <button onclick="closeAdvSearch()" style="background:none;border:none;cursor:pointer;color:var(--text-muted);">
                 <i data-lucide="x" style="width:18px;"></i>
             </button>
         </div>
         <div class="advsearch-body">
             <div>
-                <label style="font-size:0.75rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;">SEARCH TERM</label>
-                <input type="text" id="adv-query" placeholder="Keywords to find in file content…" class="input-field">
+                <label style="font-size:0.75rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;">
+                    <?= __('search.term') ?>
+                </label>
+                <input type="text" id="adv-query" placeholder="<?= __('search.term_ph') ?>" class="input-field">
             </div>
             <div class="adv-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                 <div>
-                    <label style="font-size:0.75rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;">SCOPE</label>
+                    <label style="font-size:0.75rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;">
+                        <?= __('search.scope') ?>
+                    </label>
                     <select id="adv-scope" class="input-field" style="cursor:pointer;">
-                        <option value="all">All Documents</option>
-                        <option value="private">My Catalog Only</option>
-                        <option value="public">Global Only</option>
+                        <option value="all"><?= __('search.scope_all') ?></option>
+                        <option value="private"><?= __('search.scope_mine') ?></option>
+                        <option value="public"><?= __('search.scope_pub') ?></option>
                     </select>
                 </div>
                 <div>
-                    <label style="font-size:0.75rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;">TAGS FILTER</label>
-                    <input type="text" id="adv-tags" placeholder="e.g. ML, Finance" class="input-field">
+                    <label style="font-size:0.75rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;">
+                        <?= __('search.tags_filter') ?>
+                    </label>
+                    <input type="text" id="adv-tags" placeholder="<?= __('search.tags_ph') ?>" class="input-field">
                 </div>
             </div>
             <button onclick="runAdvSearch()" style="background:var(--accent);color:white;border:none;padding:11px;border-radius:8px;font-weight:700;cursor:pointer;font-family:var(--sans);font-size:0.875rem;display:flex;align-items:center;justify-content:center;gap:8px;">
-                <i data-lucide="search" style="width:16px;"></i> Search File Content
+                <i data-lucide="search" style="width:16px;"></i> <?= __('search.run') ?>
             </button>
-            <div id="advsearch-status" style="font-size:0.8rem;color:var(--text-muted);text-align:center;display:none;">Searching…</div>
+            <div id="advsearch-status" style="font-size:0.8rem;color:var(--text-muted);text-align:center;display:none;">
+                <?= __('search.searching') ?>
+            </div>
             <div id="advsearch-results" class="advsearch-results" style="display:none;"></div>
         </div>
     </div>
@@ -451,11 +461,25 @@ $currentFolderId = $_GET['folder_id'] ?? null;
         <button class="hamburger" onclick="openSidebar()">
             <i data-lucide="menu" style="width:18px;"></i>
         </button>
-        <div class="nav-brand">ResearchHub</div>
+        <div class="nav-brand"><?= __('nav.brand') ?></div>
     </div>
     <div class="nav-right">
-        <span class="nav-user">Logged in as: <strong><?= htmlspecialchars($_SESSION['user_email'] ?? 'User') ?></strong></span>
-        <a href="index.php?action=logout" class="nav-logout">Logout</a>
+        <span class="nav-user">
+            <?= __('nav.logged_in_as') ?>: <strong><?= htmlspecialchars($_SESSION['user_email'] ?? 'User') ?></strong>
+        </span>
+        <a href="index.php?action=logout" class="nav-logout"><?= __('nav.logout') ?></a>
+        <div style="display:flex;align-items:center;gap:6px;">
+            <a href="index.php?action=set-lang&lang=en"
+               style="font-size:0.78rem;font-weight:600;padding:4px 10px;border-radius:6px;text-decoration:none;
+                      <?= ($_SESSION['lang'] ?? 'en') === 'en' ? 'background:var(--accent);color:white;' : 'color:var(--text-muted);' ?>">
+                EN
+            </a>
+            <a href="index.php?action=set-lang&lang=fr"
+               style="font-size:0.78rem;font-weight:600;padding:4px 10px;border-radius:6px;text-decoration:none;
+                      <?= ($_SESSION['lang'] ?? 'en') === 'fr' ? 'background:var(--accent);color:white;' : 'color:var(--text-muted);' ?>">
+                FR
+            </a>
+        </div>
     </div>
 </nav>
 
@@ -464,21 +488,21 @@ $currentFolderId = $_GET['folder_id'] ?? null;
     <!-- ── SIDEBAR ── -->
     <aside id="sidebar">
         <div class="sidebar-section">
-            <div class="sidebar-label">Search</div>
+            <div class="sidebar-label"><?= __('search.label') ?></div>
             <div class="sidebar-search">
                 <i data-lucide="search" class="search-icon" style="width:14px;"></i>
-                <input type="text" id="simple-search" placeholder="Search titles, tags…" oninput="runSimpleSearch(this.value)">
+                <input type="text" id="simple-search" placeholder="<?= __('search.placeholder') ?>" oninput="runSimpleSearch(this.value)">
             </div>
             <button class="adv-search-btn" onclick="openAdvSearch()">
                 <i data-lucide="sliders" style="width:13px;"></i>
-                Advanced Search (content)
+                <?= __('search.advanced') ?>
             </button>
         </div>
 
         <div class="sidebar-section" style="flex:1;">
             <div class="sidebar-label">
-                Folders
-                <button onclick="showNewFolderInput(null)" title="New root folder">
+                <?= __('folders.label') ?>
+                <button onclick="showNewFolderInput(null)" title="<?= __('folders.new_root') ?>">
                     <i data-lucide="folder-plus" style="width:14px;"></i>
                 </button>
             </div>
@@ -489,7 +513,7 @@ $currentFolderId = $_GET['folder_id'] ?? null;
                  ondrop="dropToFolder(event,null)">
                 <a href="index.php?action=dashboard" class="folder-left" style="<?= !$currentFolderId ? 'color:var(--accent);font-weight:600;' : '' ?>">
                     <i data-lucide="home" style="width:14px;flex-shrink:0;"></i>
-                    <span class="folder-name">Root</span>
+                    <span class="folder-name"><?= __('folders.root') ?></span>
                 </a>
             </div>
 
@@ -499,8 +523,8 @@ $currentFolderId = $_GET['folder_id'] ?? null;
 
             <div id="new-folder-container" style="display:none;margin-top:8px;">
                 <div class="new-folder-input">
-                    <input type="text" id="new-folder-name" placeholder="Folder name…" onkeydown="if(event.key==='Enter')confirmNewFolder()">
-                    <button onclick="confirmNewFolder()">Add</button>
+                    <input type="text" id="new-folder-name" placeholder="<?= __('folders.new') ?>" onkeydown="if(event.key==='Enter')confirmNewFolder()">
+                    <button onclick="confirmNewFolder()"><?= __('folders.add') ?></button>
                 </div>
             </div>
         </div>
@@ -510,18 +534,20 @@ $currentFolderId = $_GET['folder_id'] ?? null;
     <main class="main-content">
 
         <?php if (isset($_GET['status']) && $_GET['status'] === 'bookmarked'): ?>
-            <div class="status-msg success">✅ Research added to your private catalog!</div>
+            <div class="status-msg success"><?= __('status.bookmarked') ?></div>
         <?php endif; ?>
 
         <!-- Header + Drop Zone -->
         <div class="page-header-row" style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;gap:16px;">
             <div>
-                <h1 style="margin:0;font-size:1.75rem;font-weight:700;letter-spacing:-1px;">Master Hub</h1>
-                <p style="color:var(--text-muted);margin:4px 0 0;font-size:0.875rem;">Manage your private library and community research.</p>
+                <h1 style="margin:0;font-size:1.75rem;font-weight:700;letter-spacing:-1px;"><?= __('dashboard.title') ?></h1>
+                <p style="color:var(--text-muted);margin:4px 0 0;font-size:0.875rem;"><?= __('dashboard.subtitle') ?></p>
             </div>
             <div id="drop-zone" style="flex-shrink:0;">
                 <i data-lucide="upload-cloud" style="color:var(--accent);width:28px;height:28px;margin-bottom:6px;"></i>
-                <div id="file-status" style="font-size:0.82rem;font-weight:600;color:var(--text);">Drag PDF here or click to browse</div>
+                <div id="file-status" style="font-size:0.82rem;font-weight:600;color:var(--text);">
+                    <?= __('dashboard.upload_drag') ?>
+                </div>
                 <input type="file" id="file-input" hidden accept=".pdf">
             </div>
         </div>
@@ -531,40 +557,58 @@ $currentFolderId = $_GET['folder_id'] ?? null;
             <div style="background:var(--surface);border-radius:12px;padding:24px;box-shadow:0 4px 16px rgba(0,0,0,0.07);border:1px solid var(--border);margin-bottom:28px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border-soft);flex-wrap:wrap;gap:12px;">
                     <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="background:var(--accent-soft);padding:7px;border-radius:7px;"><i data-lucide="user" style="color:var(--accent);width:16px;"></i></div>
+                        <div style="background:var(--accent-soft);padding:7px;border-radius:7px;">
+                            <i data-lucide="user" style="color:var(--accent);width:16px;"></i>
+                        </div>
                         <div>
-                            <span style="display:block;font-size:0.65rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;">Authoring as</span>
+                            <span style="display:block;font-size:0.65rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;">
+                                <?= __('dashboard.authoring') ?>
+                            </span>
                             <span class="mono" style="font-weight:600;font-size:0.85rem;">@<?= htmlspecialchars($_SESSION['username'] ?? 'User') ?></span>
                         </div>
                     </div>
                     <div>
-                        <span style="display:block;font-size:0.65rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;text-align:right;">Privacy</span>
+                        <span style="display:block;font-size:0.65rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;text-align:right;">
+                            <?= __('dashboard.privacy') ?>
+                        </span>
                         <div class="toggle-container">
-                            <button type="button" id="private-btn" class="toggle-btn active" onclick="setPrivacy(false)">Private</button>
-                            <button type="button" id="public-btn" class="toggle-btn inactive" onclick="setPrivacy(true)">Public</button>
+                            <button type="button" id="private-btn" class="toggle-btn active" onclick="setPrivacy(false)">
+                                <?= __('dashboard.private') ?>
+                            </button>
+                            <button type="button" id="public-btn" class="toggle-btn inactive" onclick="setPrivacy(true)">
+                                <?= __('dashboard.public') ?>
+                            </button>
                         </div>
                     </div>
                 </div>
                 <div class="action-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
                     <div style="display:flex;flex-direction:column;gap:16px;">
                         <div>
-                            <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:6px;">Paper Title</label>
-                            <input type="text" id="doc-title" placeholder="Document name" class="input-field">
+                            <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:6px;">
+                                <?= __('dashboard.title_label') ?>
+                            </label>
+                            <input type="text" id="doc-title" placeholder="<?= __('dashboard.doc_name_ph') ?>" class="input-field">
                         </div>
                         <div>
-                            <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:6px;">Short Description</label>
-                            <textarea id="doc-desc" placeholder="What is this research about?" class="input-field" style="height:90px;resize:none;"></textarea>
+                            <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:6px;">
+                                <?= __('dashboard.desc_label') ?>
+                            </label>
+                            <textarea id="doc-desc" placeholder="<?= __('dashboard.desc_ph') ?>" class="input-field" style="height:90px;resize:none;"></textarea>
                         </div>
                     </div>
                     <div style="display:flex;flex-direction:column;justify-content:space-between;">
                         <div>
-                            <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:6px;">Categories / Tags</label>
-                            <input type="text" id="doc-tags" placeholder="e.g. Machine Learning, Finance" class="input-field">
+                            <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:6px;">
+                                <?= __('dashboard.tags_label') ?>
+                            </label>
+                            <input type="text" id="doc-tags" placeholder="<?= __('dashboard.tags_ph') ?>" class="input-field">
                         </div>
                         <div style="display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:16px;flex-wrap:wrap;">
-                            <button onclick="resetUI()" style="background:none;border:none;color:var(--text-faint);font-weight:600;cursor:pointer;font-size:0.85rem;font-family:var(--sans);">Discard</button>
+                            <button onclick="resetUI()" style="background:none;border:none;color:var(--text-faint);font-weight:600;cursor:pointer;font-size:0.85rem;font-family:var(--sans);">
+                                <?= __('dashboard.discard') ?>
+                            </button>
                             <button id="upload-btn" style="background:var(--accent);color:white;border:none;padding:10px 24px;border-radius:8px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.875rem;font-family:var(--sans);">
-                                <i data-lucide="check" style="width:16px;"></i> Publish to Library
+                                <i data-lucide="check" style="width:16px;"></i> <?= __('dashboard.publish') ?>
                             </button>
                         </div>
                     </div>
@@ -576,16 +620,16 @@ $currentFolderId = $_GET['folder_id'] ?? null;
         <div class="card" id="global-table">
             <div class="card-header">
                 <i data-lucide="globe" style="width:17px;color:var(--accent);"></i>
-                <h2>Global Discovery</h2>
+                <h2><?= __('global.title') ?></h2>
             </div>
             <div class="table-wrapper">
                 <table class="bloomberg-table">
                     <thead>
                         <tr>
-                            <th>Title</th>
-                            <th>Tags</th>
-                            <th>Uploaded</th>
-                            <th style="text-align:right;">Actions</th>
+                            <th><?= __('global.col_title') ?></th>
+                            <th><?= __('global.col_tags') ?></th>
+                            <th><?= __('global.col_date') ?></th>
+                            <th style="text-align:right;"><?= __('global.col_actions') ?></th>
                         </tr>
                     </thead>
                     <tbody id="global-tbody">
@@ -600,10 +644,10 @@ $currentFolderId = $_GET['folder_id'] ?? null;
                             </td>
                             <td class="mono" style="font-size:0.78rem;white-space:nowrap;"><?= date('M d, Y', strtotime($file['uploaded_at'] ?? 'now')) ?></td>
                             <td style="text-align:right;white-space:nowrap;">
-                                <button class="tbl-btn" onclick="openPreview('<?= $file['id'] ?>', '<?= htmlspecialchars($file['title'], ENT_QUOTES) ?>')" title="Preview">
+                                <button class="tbl-btn" onclick="openPreview('<?= $file['id'] ?>', '<?= htmlspecialchars($file['title'], ENT_QUOTES) ?>')" title="<?= __('preview.title') ?>">
                                     <i data-lucide="eye" style="width:16px;color:var(--accent);"></i>
                                 </button>
-                                <a href="index.php?action=save-to-catalog&id=<?= $file['id'] ?>" class="tbl-btn" title="Save to Catalog">
+                                <a href="index.php?action=save-to-catalog&id=<?= $file['id'] ?>" class="tbl-btn" title="<?= __('catalog.save') ?>">
                                     <i data-lucide="bookmark-plus" style="width:16px;color:var(--green);"></i>
                                 </a>
                             </td>
@@ -618,24 +662,26 @@ $currentFolderId = $_GET['folder_id'] ?? null;
         <div class="card" id="private-table">
             <div class="card-header">
                 <i data-lucide="lock" style="width:17px;color:var(--green);"></i>
-                <h2>Private Catalog</h2>
+                <h2><?= __('catalog.title') ?></h2>
                 <?php if ($currentFolderId): ?>
                     <span style="margin-left:auto;font-size:0.72rem;background:var(--accent-soft);color:var(--accent);padding:3px 10px;border-radius:20px;font-weight:600;">
-                        Folder view
+                        <?= __('catalog.folder_view') ?>
                     </span>
                 <?php endif; ?>
             </div>
             <?php if (empty($userFiles)): ?>
-                <p style="text-align:center;color:var(--text-faint);padding:32px;font-size:0.85rem;">No documents in this view.</p>
+                <p style="text-align:center;color:var(--text-faint);padding:32px;font-size:0.85rem;">
+                    <?= __('catalog.empty') ?>
+                </p>
             <?php else: ?>
             <div class="table-wrapper">
                 <table class="bloomberg-table">
                     <thead>
                         <tr>
                             <th style="width:36px;"></th>
-                            <th>Document Name</th>
-                            <th>Location</th>
-                            <th style="text-align:right;">Actions</th>
+                            <th><?= __('catalog.col_name') ?></th>
+                            <th><?= __('catalog.col_location') ?></th>
+                            <th style="text-align:right;"><?= __('catalog.col_actions') ?></th>
                         </tr>
                     </thead>
                     <tbody id="private-tbody">
@@ -647,13 +693,13 @@ $currentFolderId = $_GET['folder_id'] ?? null;
                             <td><i data-lucide="file-text" style="width:16px;color:var(--text-faint);"></i></td>
                             <td style="font-weight:600;"><?= htmlspecialchars($item['custom_display_name'] ?? $item['title']) ?></td>
                             <td class="mono" style="font-size:0.72rem;color:var(--text-faint);white-space:nowrap;">
-                                <?= $item['folder_id'] ? 'FOLDER: ' . $item['folder_id'] : 'ROOT' ?>
+                                <?= $item['folder_id'] ? 'FOLDER: ' . $item['folder_id'] : __('folders.root') ?>
                             </td>
                             <td style="text-align:right;white-space:nowrap;">
-                                <button class="tbl-btn" onclick="openPreview('<?= $item['document_id'] ?>', '<?= htmlspecialchars($item['custom_display_name'] ?? $item['title'], ENT_QUOTES) ?>')" title="Preview">
+                                <button class="tbl-btn" onclick="openPreview('<?= $item['document_id'] ?>', '<?= htmlspecialchars($item['custom_display_name'] ?? $item['title'], ENT_QUOTES) ?>')" title="<?= __('preview.title') ?>">
                                     <i data-lucide="maximize-2" style="width:15px;color:var(--accent);"></i>
                                 </button>
-                                <button class="tbl-btn danger" onclick="removeFromCatalog(<?= $item['document_id'] ?>, this)" title="Remove from Catalog">
+                                <button class="tbl-btn danger" onclick="removeFromCatalog(<?= $item['document_id'] ?>, this)" title="<?= __('catalog.remove') ?>">
                                     <i data-lucide="trash-2" style="width:15px;color:var(--red);"></i>
                                 </button>
                             </td>
@@ -667,7 +713,6 @@ $currentFolderId = $_GET['folder_id'] ?? null;
 
     </main>
 </div>
-
 <?php
 function renderFolderTree(array $tree, $currentFolderId): void {
     foreach ($tree as $folder) {

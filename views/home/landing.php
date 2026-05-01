@@ -245,67 +245,165 @@
 </head>
 <body>
 
-    <nav class="navbar">
-        <div class="container nav-content">
-            <div class="logo">ResearchHub</div>
-            <div class="nav-auth">
-                <a href="index.php?action=login" class="btn-link">Login</a>
-                <a href="index.php?action=register" class="btn btn-black">Create Account</a>
+<nav class="navbar">
+    <div class="container nav-content">
+        <div class="logo"><?= __('nav.brand') ?></div>
+        <div class="nav-auth">
+            <!-- Language switcher -->
+            <div style="display:flex;align-items:center;gap:4px;margin-right:12px;">
+                <a href="index.php?action=set-lang&lang=en"
+                   style="font-size:0.75rem;font-weight:600;padding:3px 9px;border-radius:5px;text-decoration:none;
+                          <?= ($_SESSION['lang'] ?? 'en') === 'en' ? 'background:#0f172a;color:white;' : 'color:#64748b;' ?>">
+                    EN
+                </a>
+                <a href="index.php?action=set-lang&lang=fr"
+                   style="font-size:0.75rem;font-weight:600;padding:3px 9px;border-radius:5px;text-decoration:none;
+                          <?= ($_SESSION['lang'] ?? 'en') === 'fr' ? 'background:#0f172a;color:white;' : 'color:#64748b;' ?>">
+                    FR
+                </a>
+            </div>
+            <a href="index.php?action=login" class="btn-link"><?= __('landing.nav_login') ?></a>
+            <a href="index.php?action=register" class="btn btn-black"><?= __('landing.nav_register') ?></a>
+        </div>
+    </div>
+</nav>
+
+<section class="hero">
+    <div class="container text-center">
+        <span class="badge"><?= __('landing.hero_badge') ?></span>
+        <h1 class="hero-title"><?= __('nav.brand') ?></h1>
+        <p class="hero-subtitle"><?= __('landing.hero_subtitle') ?></p>
+        <p class="hero-text"><?= __('landing.hero_text') ?></p>
+
+        <div class="stats-grid">
+            <div class="stat-item"><h3>2.5M+</h3><p><?= __('landing.stat_papers') ?></p></div>
+            <div class="stat-item"><h3>50K+</h3><p><?= __('landing.stat_researchers') ?></p></div>
+            <div class="stat-item"><h3>180+</h3><p><?= __('landing.stat_countries') ?></p></div>
+            <div class="stat-item"><h3>1M+</h3><p><?= __('landing.stat_downloads') ?></p></div>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="container text-center">
+        <h2 class="section-title"><?= __('landing.features_title') ?></h2>
+        <div class="features-grid">
+            <div class="card">
+                <div class="icon-box"><i data-lucide="zap"></i></div>
+                <h3><?= __('landing.feature_search_title') ?></h3>
+                <p><?= __('landing.feature_search_text') ?></p>
+            </div>
+            <div class="card">
+                <div class="icon-box"><i data-lucide="shield"></i></div>
+                <h3><?= __('landing.feature_secure_title') ?></h3>
+                <p><?= __('landing.feature_secure_text') ?></p>
+            </div>
+            <div class="card">
+                <div class="icon-box"><i data-lucide="globe"></i></div>
+                <h3><?= __('landing.feature_collab_title') ?></h3>
+                <p><?= __('landing.feature_collab_text') ?></p>
             </div>
         </div>
-    </nav>
+    </div>
+</section>
 
-    <section class="hero">
-        <div class="container text-center">
-            <span class="badge">The Future of Academic Research</span>
-            <h1 class="hero-title">ResearchHub</h1>
-            <p class="hero-subtitle">Discover, Share, and Accelerate Research Worldwide</p>
-            <p class="hero-text">Join thousands of researchers accessing millions of academic papers, theses, and documents.</p>
-
-            <div class="stats-grid">
-                <div class="stat-item"><h3>2.5M+</h3><p>Research Papers</p></div>
-                <div class="stat-item"><h3>50K+</h3><p>Active Researchers</p></div>
-                <div class="stat-item"><h3>180+</h3><p>Countries</p></div>
-                <div class="stat-item"><h3>1M+</h3><p>Monthly Downloads</p></div>
-            </div>
+<section class="cta">
+    <div class="container text-center">
+        <h2><?= __('landing.cta_title') ?></h2>
+        <div class="cta-buttons">
+            <a href="index.php?action=register" class="btn btn-primary">
+                <?= __('landing.cta_upload') ?> <i data-lucide="arrow-right"></i>
+            </a>
+            <a href="index.php?action=login" class="btn btn-outline">
+                <?= __('landing.cta_browse') ?> <i data-lucide="search"></i>
+            </a>
         </div>
-    </section>
+    </div>
+</section>
 
-    <section class="features">
-        <div class="container text-center">
-            <h2 class="section-title">Everything you need to advance research</h2>
-            <div class="features-grid">
-                <div class="card">
-                    <div class="icon-box"><i data-lucide="zap"></i></div>
-                    <h3>Lightning Fast Search</h3>
-                    <p>Find exactly what you need in milliseconds with our context-aware search engine.</p>
+<!-- FOOTER -->
+<footer style="background:#0f172a;color:#94a3b8;padding:48px 0 24px;">
+    <div class="container">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px;">
+
+            <!-- Brand -->
+            <div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:1.1rem;color:white;margin-bottom:12px;">
+                    <?= __('nav.brand') ?>
                 </div>
-                <div class="card">
-                    <div class="icon-box"><i data-lucide="shield"></i></div>
-                    <h3>Secure & Reliable</h3>
-                    <p>Your research is protected with enterprise-grade security and permanent archival.</p>
-                </div>
-                <div class="card">
-                    <div class="icon-box"><i data-lucide="globe"></i></div>
-                    <h3>Global Collaboration</h3>
-                    <p>Connect with researchers worldwide. Share insights and build global networks.</p>
+                <p style="font-size:0.85rem;line-height:1.6;max-width:280px;">
+                    <?= __('landing.footer_desc') ?>
+                </p>
+                <div style="display:flex;gap:12px;margin-top:16px;">
+                    <a href="#" style="color:#64748b;transition:color 0.15s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#64748b'">
+                        <i data-lucide="twitter" style="width:18px;"></i>
+                    </a>
+                    <a href="#" style="color:#64748b;transition:color 0.15s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#64748b'">
+                        <i data-lucide="github" style="width:18px;"></i>
+                    </a>
+                    <a href="#" style="color:#64748b;transition:color 0.15s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#64748b'">
+                        <i data-lucide="linkedin" style="width:18px;"></i>
+                    </a>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <section class="cta">
-        <div class="container text-center">
-            <h2>Ready to accelerate your research?</h2>
-            <div class="cta-buttons">
-                <a href="index.php?action=register" class="btn btn-primary">Upload Your Research <i data-lucide="arrow-right"></i></a>
-                <a href="index.php?action=login" class="btn btn-outline">Start Browsing <i data-lucide="search"></i></a>
+            <!-- Platform -->
+            <div>
+                <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#475569;margin-bottom:14px;">
+                    <?= __('landing.footer_col_platform') ?>
+                </div>
+                <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+                    <li><a href="index.php?action=login" style="color:#94a3b8;text-decoration:none;font-size:0.85rem;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94a3b8'"><?= __('landing.nav_login') ?></a></li>
+                    <li><a href="index.php?action=register" style="color:#94a3b8;text-decoration:none;font-size:0.85rem;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94a3b8'"><?= __('landing.nav_register') ?></a></li>
+                    <li><a href="#" style="color:#94a3b8;text-decoration:none;font-size:0.85rem;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94a3b8'"><?= __('landing.footer_browse') ?></a></li>
+                    <li><a href="#" style="color:#94a3b8;text-decoration:none;font-size:0.85rem;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94a3b8'"><?= __('landing.footer_upload') ?></a></li>
+                </ul>
+            </div>
+
+            <!-- Resources -->
+            <div>
+                <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#475569;margin-bottom:14px;">
+                    <?= __('landing.footer_col_resources') ?>
+                </div>
+                <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+                    <li><a href="#" style="color:#94a3b8;text-decoration:none;font-size:0.85rem;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94a3b8'"><?= __('landing.footer_docs') ?></a></li>
+                    <li><a href="#" style="color:#94a3b8;text-decoration:none;font-size:0.85rem;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94a3b8'"><?= __('landing.footer_faq') ?></a></li>
+                    <li><a href="#" style="color:#94a3b8;text-decoration:none;font-size:0.85rem;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94a3b8'"><?= __('landing.footer_support') ?></a></li>
+                </ul>
+            </div>
+
+            <!-- Legal -->
+            <div>
+                <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#475569;margin-bottom:14px;">
+                    <?= __('landing.footer_col_legal') ?>
+                </div>
+                <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+                    <li><a href="#" style="color:#94a3b8;text-decoration:none;font-size:0.85rem;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94a3b8'"><?= __('landing.footer_privacy') ?></a></li>
+                    <li><a href="#" style="color:#94a3b8;text-decoration:none;font-size:0.85rem;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94a3b8'"><?= __('landing.footer_terms') ?></a></li>
+                    <li><a href="#" style="color:#94a3b8;text-decoration:none;font-size:0.85rem;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94a3b8'"><?= __('landing.footer_cookies') ?></a></li>
+                </ul>
             </div>
         </div>
-    </section>
 
-    <script>
-        lucide.createIcons();
-    </script>
+        <!-- Bottom bar -->
+        <div style="border-top:1px solid #1e293b;padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+            <p style="font-size:0.78rem;margin:0;">
+                © <?= date('Y') ?> <?= __('nav.brand') ?>. <?= __('landing.footer_rights') ?>
+            </p>
+            <div style="display:flex;gap:16px;">
+                <a href="index.php?action=set-lang&lang=en"
+                   style="font-size:0.75rem;font-weight:600;text-decoration:none;
+                          <?= ($_SESSION['lang'] ?? 'en') === 'en' ? 'color:white;' : 'color:#475569;' ?>">EN</a>
+                <a href="index.php?action=set-lang&lang=fr"
+                   style="font-size:0.75rem;font-weight:600;text-decoration:none;
+                          <?= ($_SESSION['lang'] ?? 'en') === 'fr' ? 'color:white;' : 'color:#475569;' ?>">FR</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>

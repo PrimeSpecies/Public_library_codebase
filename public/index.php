@@ -9,7 +9,8 @@ use PHPMailer\PHPMailer\SMTP;
 require_once __DIR__ . '/../libs/phpmailer/Exception.php';
 require_once __DIR__ . '/../libs/phpmailer/PHPMailer.php';
 require_once __DIR__ . '/../libs/phpmailer/SMTP.php';
-
+require_once __DIR__ . '/../lang/lang.php';
+$translations = loadLanguage();
 
 
 // 1. Session Setup
@@ -128,25 +129,13 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
     $authController->verifyResetOTP(); 
     exit();
 
-}elseif ( $action === 'test-mail'){
-    $mail = new PHPMailer(true);
-    try {
-        $mail->isSMTP();
-        $mail->Host       = getenv('MAIL_HOST');
-        $mail->SMTPAuth   = true;
-        $mail->Username   = getenv('MAIL_USERNAME');
-        $mail->Password   = getenv('MAIL_PASSWORD');
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
-        $mail->setFrom(getenv('MAIL_USERNAME'), 'Test');
-        $mail->addAddress(getenv('MAIL_USERNAME')); // sends to yourself
-        $mail->Subject = 'Test from Render';
-        $mail->Body    = 'If you see this, mail works.';
-        $mail->send();
-        echo json_encode(['success' => true, 'msg' => 'Mail sent']);
-    } catch (Exception $e) {
-        echo json_encode(['success' => false, 'error' => $mail->ErrorInfo]);
+}elseif ($action === 'set-lang'){
+    $allowed = ['en', 'fr'];
+    $lang = $_GET['lang'] ?? 'en';
+    if (in_array($lang, $allowed)) {
+        $_SESSION['lang'] = $lang;
     }
+    header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? 'index.php'));
     exit;
 
 }
