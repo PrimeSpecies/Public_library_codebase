@@ -38,6 +38,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         /* ── NAV ── */
@@ -48,11 +49,36 @@
             border-bottom: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 24px;
+            gap: 12px;
         }
-        .nav-brand { font-family: var(--mono); font-weight: 600; font-size: 1rem; letter-spacing: -0.5px; color: var(--text); }
-        .nav-right { display: flex; align-items: center; gap: 16px; }
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+        .nav-brand { font-family: var(--mono); font-weight: 600; font-size: 1rem; letter-spacing: -0.5px; color: var(--text); white-space: nowrap; }
+        .nav-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
         .nav-user { font-size: 0.8rem; color: var(--text-muted); }
-        .nav-logout { font-size: 0.8rem; font-weight: 600; color: var(--red); text-decoration: none; padding: 6px 14px; border-radius: 6px; background: var(--red-soft); }
+        .nav-logout { font-size: 0.8rem; font-weight: 600; color: var(--red); text-decoration: none; padding: 6px 14px; border-radius: 6px; background: var(--red-soft); white-space: nowrap; }
+
+        /* Hamburger */
+        .hamburger {
+            display: none;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 6px;
+            cursor: pointer;
+            color: var(--text);
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        /* ── SIDEBAR OVERLAY ── */
+        #sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(15,23,42,0.5);
+            z-index: 49;
+            backdrop-filter: blur(2px);
+        }
+        #sidebar-overlay.open { display: block; }
 
         /* ── LAYOUT ── */
         .app-shell {
@@ -75,6 +101,7 @@
             display: flex;
             flex-direction: column;
             z-index: 50;
+            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
         }
 
         .sidebar-section {
@@ -100,10 +127,7 @@
         }
         .sidebar-label button:hover { color: var(--accent); background: var(--accent-soft); }
 
-        /* Search in sidebar */
-        .sidebar-search {
-            position: relative;
-        }
+        .sidebar-search { position: relative; }
         .sidebar-search input {
             width: 100%;
             padding: 8px 10px 8px 32px;
@@ -121,16 +145,10 @@
             color: var(--text-faint); pointer-events: none;
         }
         .adv-search-btn {
-            margin-top: 6px;
-            width: 100%;
-            padding: 7px;
-            border: 1px dashed var(--border);
-            border-radius: 7px;
-            background: none;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-family: var(--sans);
+            margin-top: 6px; width: 100%; padding: 7px;
+            border: 1px dashed var(--border); border-radius: 7px;
+            background: none; font-size: 0.75rem; color: var(--text-muted);
+            cursor: pointer; font-family: var(--sans);
             display: flex; align-items: center; justify-content: center; gap: 6px;
             transition: all 0.2s;
         }
@@ -139,77 +157,47 @@
         /* Folder Tree */
         .folder-tree { list-style: none; margin: 0; padding: 0; }
         .folder-tree li { margin: 0; }
-
         .folder-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 5px 6px;
-            border-radius: 6px;
-            cursor: pointer;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 5px 6px; border-radius: 6px; cursor: pointer;
             transition: background 0.15s;
-            group: true;
         }
         .folder-row:hover { background: var(--bg); }
         .folder-row.active { background: var(--accent-soft); }
-
         .folder-left {
             display: flex; align-items: center; gap: 5px;
-            flex: 1; min-width: 0;
-            font-size: 0.82rem;
-            color: var(--text);
-            text-decoration: none;
+            flex: 1; min-width: 0; font-size: 0.82rem;
+            color: var(--text); text-decoration: none;
         }
         .folder-row.active .folder-left { color: var(--accent); font-weight: 600; }
-
-        .folder-name {
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-
+        .folder-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .chevron-btn {
             background: none; border: none; cursor: pointer; padding: 0;
             color: var(--text-faint); display: flex; align-items: center;
-            transition: transform 0.2s;
-            flex-shrink: 0;
+            transition: transform 0.2s; flex-shrink: 0;
         }
         .chevron-btn.open { transform: rotate(90deg); }
-
-        .folder-actions {
-            display: none;
-            align-items: center;
-            gap: 2px;
-            flex-shrink: 0;
-        }
+        .folder-actions { display: none; align-items: center; gap: 2px; flex-shrink: 0; }
         .folder-row:hover .folder-actions { display: flex; }
         .folder-act-btn {
             background: none; border: none; cursor: pointer; padding: 3px;
             border-radius: 4px; color: var(--text-faint);
-            display: flex; align-items: center;
-            transition: all 0.15s;
+            display: flex; align-items: center; transition: all 0.15s;
         }
         .folder-act-btn:hover { background: var(--border); color: var(--text); }
         .folder-act-btn.del:hover { background: var(--red-soft); color: var(--red); }
-
         .folder-children { padding-left: 18px; }
 
-        /* File items inside folders */
         .file-list { list-style: none; margin: 4px 0; padding: 0; }
         .file-item {
             display: flex; align-items: center; gap: 6px;
-            padding: 4px 6px;
-            border-radius: 5px;
-            font-size: 0.78rem;
-            color: var(--text-muted);
-            cursor: grab;
-            transition: background 0.15s;
+            padding: 4px 6px; border-radius: 5px;
+            font-size: 0.78rem; color: var(--text-muted);
+            cursor: grab; transition: background 0.15s;
         }
         .file-item:hover { background: var(--bg); color: var(--text); }
-        .file-item.drag-over { background: var(--accent-soft); outline: 1px dashed var(--accent); }
 
-        /* New folder input */
-        .new-folder-input {
-            display: flex; gap: 6px; margin-top: 8px;
-        }
+        .new-folder-input { display: flex; gap: 6px; margin-top: 8px; }
         .new-folder-input input {
             flex: 1; padding: 6px 8px; border: 1px solid var(--accent-border);
             border-radius: 6px; font-size: 0.8rem; font-family: var(--sans);
@@ -227,22 +215,16 @@
             flex: 1;
             padding: 32px 32px 60px;
             max-width: calc(100% - var(--sidebar-w));
+            min-width: 0;
         }
 
         /* Drop zone */
         #drop-zone {
-            border: 2px dashed var(--border);
-            padding: 20px 40px;
-            border-radius: 12px;
-            background: var(--surface);
-            cursor: pointer;
-            transition: 0.2s;
-            text-align: center;
+            border: 2px dashed var(--border); padding: 20px 40px;
+            border-radius: 12px; background: var(--surface);
+            cursor: pointer; transition: 0.2s; text-align: center;
         }
-        #drop-zone:hover, #drop-zone.dragover {
-            background: var(--accent-soft);
-            border-color: var(--accent);
-        }
+        #drop-zone:hover, #drop-zone.dragover { background: var(--accent-soft); border-color: var(--accent); }
 
         /* Action bar */
         #action-bar { max-height: 0; overflow: hidden; opacity: 0; transition: all 0.4s cubic-bezier(0.4,0,0.2,1); }
@@ -251,8 +233,7 @@
         .input-field {
             width: 100%; padding: 10px 12px; border: 1px solid var(--border);
             border-radius: 7px; font-size: 0.875rem; font-family: var(--sans);
-            color: var(--text); background: var(--surface);
-            transition: border 0.2s;
+            color: var(--text); background: var(--surface); transition: border 0.2s;
         }
         .input-field:focus { outline: none; border-color: var(--accent); }
 
@@ -261,28 +242,20 @@
         .toggle-btn.active { background: white; color: var(--accent); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
         .toggle-btn.inactive { color: var(--text-muted); background: transparent; }
 
-        /* Tables */
-        .card {
-            background: var(--surface);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            overflow: hidden;
-            margin-bottom: 28px;
-        }
-        .card-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border-soft);
-            display: flex; align-items: center; gap: 10px;
-        }
+        /* Cards / Tables */
+        .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 28px; }
+        .card-header { padding: 16px 20px; border-bottom: 1px solid var(--border-soft); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .card-header h2 { font-size: 0.9rem; font-weight: 700; margin: 0; }
 
-        .bloomberg-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+        .bloomberg-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 480px; }
         .bloomberg-table th {
             text-align: left; padding: 10px 16px;
             border-bottom: 1px solid var(--border);
-            color: var(--text-faint);
-            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em;
-            font-weight: 700; background: var(--bg);
+            color: var(--text-faint); font-size: 0.7rem;
+            text-transform: uppercase; letter-spacing: 0.06em;
+            font-weight: 700; background: var(--bg); white-space: nowrap;
         }
         .bloomberg-table td { padding: 11px 16px; border-bottom: 1px solid var(--border-soft); vertical-align: middle; }
         .bloomberg-table tr:last-child td { border-bottom: none; }
@@ -295,11 +268,9 @@
             margin-right: 3px; display: inline-block; color: var(--text-muted);
         }
 
-        /* Action buttons in table */
         .tbl-btn {
             background: none; border: none; cursor: pointer; padding: 5px;
-            border-radius: 5px; display: inline-flex; align-items: center;
-            transition: all 0.15s;
+            border-radius: 5px; display: inline-flex; align-items: center; transition: all 0.15s;
         }
         .tbl-btn:hover { background: var(--bg); }
         .tbl-btn.danger:hover { background: var(--red-soft); }
@@ -313,7 +284,7 @@
             box-shadow: 0 8px 24px rgba(0,0,0,0.15);
             transform: translateY(80px); opacity: 0;
             transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-            pointer-events: none;
+            pointer-events: none; max-width: calc(100vw - 32px);
         }
         #toast.show { transform: translateY(0); opacity: 1; }
         #toast.success { background: #065f46; }
@@ -322,41 +293,39 @@
         /* Preview Modal */
         #preview-modal {
             display: none; position: fixed; inset: 0;
-            background: rgba(15,23,42,0.85);
-            z-index: 9999; backdrop-filter: blur(4px);
+            background: rgba(15,23,42,0.85); z-index: 9999; backdrop-filter: blur(4px);
         }
         .modal-content {
-            width: 90%; height: 92%; margin: 2% auto;
+            width: 95%; height: 92%; margin: 2% auto;
             background: white; border-radius: 12px;
             display: flex; flex-direction: column; overflow: hidden;
         }
         .modal-header {
             padding: 13px 20px; background: var(--bg);
             border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex; justify-content: space-between; align-items: center; gap: 10px;
         }
 
         /* Advanced Search Modal */
         #advsearch-modal {
             display: none; position: fixed; inset: 0;
-            background: rgba(15,23,42,0.7);
-            z-index: 9998; backdrop-filter: blur(4px);
-            align-items: center; justify-content: center;
+            background: rgba(15,23,42,0.7); z-index: 9998;
+            backdrop-filter: blur(4px);
+            align-items: center; justify-content: center; padding: 16px;
         }
         #advsearch-modal.open { display: flex; }
         .advsearch-box {
             background: white; border-radius: 16px;
-            width: 560px; max-width: 95%;
-            box-shadow: 0 24px 48px rgba(0,0,0,0.2);
-            overflow: hidden;
+            width: 100%; max-width: 560px;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.2); overflow: hidden;
         }
         .advsearch-header {
             padding: 18px 24px; border-bottom: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
         }
         .advsearch-header h3 { margin: 0; font-size: 0.95rem; font-weight: 700; }
-        .advsearch-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
-        .advsearch-results { max-height: 300px; overflow-y: auto; }
+        .advsearch-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+        .advsearch-results { max-height: 280px; overflow-y: auto; }
         .advsearch-result-item {
             padding: 12px; border-radius: 8px; border: 1px solid var(--border);
             margin-bottom: 8px; cursor: pointer; transition: border 0.2s, background 0.2s;
@@ -366,32 +335,48 @@
         .advsearch-result-item .res-snippet { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
         .advsearch-result-item .res-snippet mark { background: #fef08a; border-radius: 2px; padding: 0 2px; }
 
-        /* Search highlight row */
         .search-highlight td { background: #fefce8 !important; }
-
-        /* Drag placeholder */
-        .drag-placeholder {
-            height: 32px;
-            background: var(--accent-soft);
-            border: 1px dashed var(--accent);
-            border-radius: 5px;
-            margin: 4px 0;
-        }
-
-        /* Folder drop target */
         .folder-row.drop-target { background: var(--accent-soft) !important; outline: 2px dashed var(--accent); }
 
-        /* Scrollbar */
         #sidebar::-webkit-scrollbar { width: 4px; }
         #sidebar::-webkit-scrollbar-track { background: transparent; }
         #sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-        /* Status badge */
-        .status-msg {
-            padding: 10px 16px; border-radius: 8px;
-            font-size: 0.85rem; font-weight: 500; margin-bottom: 20px;
-        }
+        .status-msg { padding: 10px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 500; margin-bottom: 20px; }
         .status-msg.success { background: var(--green-soft); color: #065f46; border: 1px solid #a7f3d0; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            /* Sidebar hidden by default on mobile */
+            #sidebar { transform: translateX(-100%); }
+            #sidebar.open { transform: translateX(0); }
+
+            .hamburger { display: flex; }
+
+            /* Nav adjustments */
+            .nav-user { display: none; }
+            nav { padding: 0 16px; }
+
+            /* Main takes full width */
+            .main-content { margin-left: 0; max-width: 100%; padding: 16px 16px 40px; }
+
+            /* Header stack on mobile */
+            .page-header-row { flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; }
+            #drop-zone { width: 100%; padding: 16px; }
+
+            /* Action bar grid */
+            .action-grid { grid-template-columns: 1fr !important; }
+
+            /* Advanced search grid */
+            .adv-grid { grid-template-columns: 1fr !important; }
+
+            .modal-content { width: 100%; height: 95%; margin: 2.5% auto; border-radius: 10px; }
+        }
+
+        @media (max-width: 480px) {
+            .tag-pill { font-size: 0.65rem; padding: 1px 5px; }
+            .card-header h2 { font-size: 0.85rem; }
+        }
     </style>
 </head>
 <body>
@@ -404,18 +389,18 @@ $folderTree = $folderController->buildTree($allFolders, null);
 $currentFolderId = $_GET['folder_id'] ?? null;
 ?>
 
-<!-- Toast -->
 <div id="toast"></div>
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
 <!-- Preview Modal -->
 <div id="preview-modal">
     <div class="modal-content">
         <div class="modal-header">
-            <div style="display:flex;align-items:center;gap:10px;">
-                <i data-lucide="file-text" style="color:var(--accent);width:18px;"></i>
-                <span id="modal-title" class="mono" style="font-weight:600;font-size:0.9rem;">Document Preview</span>
+            <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+                <i data-lucide="file-text" style="color:var(--accent);width:18px;flex-shrink:0;"></i>
+                <span id="modal-title" class="mono" style="font-weight:600;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Document Preview</span>
             </div>
-            <button onclick="closePreview()" style="background:var(--red-soft);color:var(--red);border:none;padding:7px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.8rem;font-family:var(--sans);">
+            <button onclick="closePreview()" style="background:var(--red-soft);color:var(--red);border:none;padding:7px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.8rem;font-family:var(--sans);white-space:nowrap;flex-shrink:0;">
                 ✕ Close
             </button>
         </div>
@@ -437,7 +422,7 @@ $currentFolderId = $_GET['folder_id'] ?? null;
                 <label style="font-size:0.75rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;">SEARCH TERM</label>
                 <input type="text" id="adv-query" placeholder="Keywords to find in file content…" class="input-field">
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="adv-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                 <div>
                     <label style="font-size:0.75rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;">SCOPE</label>
                     <select id="adv-scope" class="input-field" style="cursor:pointer;">
@@ -452,8 +437,7 @@ $currentFolderId = $_GET['folder_id'] ?? null;
                 </div>
             </div>
             <button onclick="runAdvSearch()" style="background:var(--accent);color:white;border:none;padding:11px;border-radius:8px;font-weight:700;cursor:pointer;font-family:var(--sans);font-size:0.875rem;display:flex;align-items:center;justify-content:center;gap:8px;">
-                <i data-lucide="search" style="width:16px;"></i>
-                Search File Content
+                <i data-lucide="search" style="width:16px;"></i> Search File Content
             </button>
             <div id="advsearch-status" style="font-size:0.8rem;color:var(--text-muted);text-align:center;display:none;">Searching…</div>
             <div id="advsearch-results" class="advsearch-results" style="display:none;"></div>
@@ -463,7 +447,12 @@ $currentFolderId = $_GET['folder_id'] ?? null;
 
 <!-- NAV -->
 <nav>
-    <div class="nav-brand">ResearchHub</div>
+    <div class="nav-left">
+        <button class="hamburger" onclick="openSidebar()">
+            <i data-lucide="menu" style="width:18px;"></i>
+        </button>
+        <div class="nav-brand">ResearchHub</div>
+    </div>
     <div class="nav-right">
         <span class="nav-user">Logged in as: <strong><?= htmlspecialchars($_SESSION['user_email'] ?? 'User') ?></strong></span>
         <a href="index.php?action=logout" class="nav-logout">Logout</a>
@@ -474,8 +463,6 @@ $currentFolderId = $_GET['folder_id'] ?? null;
 
     <!-- ── SIDEBAR ── -->
     <aside id="sidebar">
-
-        <!-- Simple Search -->
         <div class="sidebar-section">
             <div class="sidebar-label">Search</div>
             <div class="sidebar-search">
@@ -488,7 +475,6 @@ $currentFolderId = $_GET['folder_id'] ?? null;
             </button>
         </div>
 
-        <!-- Folder Tree -->
         <div class="sidebar-section" style="flex:1;">
             <div class="sidebar-label">
                 Folders
@@ -497,9 +483,7 @@ $currentFolderId = $_GET['folder_id'] ?? null;
                 </button>
             </div>
 
-            <!-- Root drop target -->
-            <div class="folder-row"
-                 style="margin-bottom:4px;"
+            <div class="folder-row" style="margin-bottom:4px;"
                  ondragover="allowFolderDrop(event,this)"
                  ondragleave="this.classList.remove('drop-target')"
                  ondrop="dropToFolder(event,null)">
@@ -518,10 +502,8 @@ $currentFolderId = $_GET['folder_id'] ?? null;
                     <input type="text" id="new-folder-name" placeholder="Folder name…" onkeydown="if(event.key==='Enter')confirmNewFolder()">
                     <button onclick="confirmNewFolder()">Add</button>
                 </div>
-                <input type="hidden" id="new-folder-parent" value="">
             </div>
         </div>
-
     </aside>
 
     <!-- ── MAIN ── -->
@@ -532,12 +514,12 @@ $currentFolderId = $_GET['folder_id'] ?? null;
         <?php endif; ?>
 
         <!-- Header + Drop Zone -->
-        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;">
+        <div class="page-header-row" style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;gap:16px;">
             <div>
                 <h1 style="margin:0;font-size:1.75rem;font-weight:700;letter-spacing:-1px;">Master Hub</h1>
                 <p style="color:var(--text-muted);margin:4px 0 0;font-size:0.875rem;">Manage your private library and community research.</p>
             </div>
-            <div id="drop-zone">
+            <div id="drop-zone" style="flex-shrink:0;">
                 <i data-lucide="upload-cloud" style="color:var(--accent);width:28px;height:28px;margin-bottom:6px;"></i>
                 <div id="file-status" style="font-size:0.82rem;font-weight:600;color:var(--text);">Drag PDF here or click to browse</div>
                 <input type="file" id="file-input" hidden accept=".pdf">
@@ -547,7 +529,7 @@ $currentFolderId = $_GET['folder_id'] ?? null;
         <!-- Upload Action Bar -->
         <div id="action-bar">
             <div style="background:var(--surface);border-radius:12px;padding:24px;box-shadow:0 4px 16px rgba(0,0,0,0.07);border:1px solid var(--border);margin-bottom:28px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border-soft);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border-soft);flex-wrap:wrap;gap:12px;">
                     <div style="display:flex;align-items:center;gap:10px;">
                         <div style="background:var(--accent-soft);padding:7px;border-radius:7px;"><i data-lucide="user" style="color:var(--accent);width:16px;"></i></div>
                         <div>
@@ -563,7 +545,7 @@ $currentFolderId = $_GET['folder_id'] ?? null;
                         </div>
                     </div>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                <div class="action-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
                     <div style="display:flex;flex-direction:column;gap:16px;">
                         <div>
                             <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:6px;">Paper Title</label>
@@ -579,7 +561,7 @@ $currentFolderId = $_GET['folder_id'] ?? null;
                             <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:6px;">Categories / Tags</label>
                             <input type="text" id="doc-tags" placeholder="e.g. Machine Learning, Finance" class="input-field">
                         </div>
-                        <div style="display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:16px;">
+                        <div style="display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:16px;flex-wrap:wrap;">
                             <button onclick="resetUI()" style="background:none;border:none;color:var(--text-faint);font-weight:600;cursor:pointer;font-size:0.85rem;font-family:var(--sans);">Discard</button>
                             <button id="upload-btn" style="background:var(--accent);color:white;border:none;padding:10px 24px;border-radius:8px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.875rem;font-family:var(--sans);">
                                 <i data-lucide="check" style="width:16px;"></i> Publish to Library
@@ -596,40 +578,40 @@ $currentFolderId = $_GET['folder_id'] ?? null;
                 <i data-lucide="globe" style="width:17px;color:var(--accent);"></i>
                 <h2>Global Discovery</h2>
             </div>
-            <table class="bloomberg-table">
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <!-- <th>Uploader</th> -->
-                        <th>Tags</th>
-                        <th>Uploaded</th>
-                        <th style="text-align:right;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="global-tbody">
-                    <?php foreach ($publicFiles as $file): ?>
-                    <tr data-title="<?= strtolower(htmlspecialchars($file['title'] ?? '')) ?>"
-                        data-tags="<?= strtolower(htmlspecialchars($file['tags'] ?? '')) ?>">
-                        <td class="mono" style="font-weight:600;"><?= htmlspecialchars($file['title'] ?? 'Untitled') ?></td>
-                        <!-- <td style="color:var(--text-muted);">@<?= htmlspecialchars($file['username'] ?? 'Unknown') ?></td> -->
-                        <td>
-                            <?php foreach (explode(',', $file['tags'] ?? 'General') as $tag): ?>
-                                <span class="tag-pill"><?= htmlspecialchars(trim($tag)) ?></span>
-                            <?php endforeach; ?>
-                        </td>
-                        <td class="mono" style="font-size:0.78rem;"><?= date('M d, Y', strtotime($file['uploaded_at'] ?? 'now')) ?></td>
-                        <td style="text-align:right;">
-                            <button class="tbl-btn" onclick="openPreview('<?= $file['id'] ?>', '<?= htmlspecialchars($file['title'], ENT_QUOTES) ?>')" title="Preview">
-                                <i data-lucide="eye" style="width:16px;color:var(--accent);"></i>
-                            </button>
-                            <a href="index.php?action=save-to-catalog&id=<?= $file['id'] ?>" class="tbl-btn" title="Save to Catalog">
-                                <i data-lucide="bookmark-plus" style="width:16px;color:var(--green);"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table class="bloomberg-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Tags</th>
+                            <th>Uploaded</th>
+                            <th style="text-align:right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="global-tbody">
+                        <?php foreach ($publicFiles as $file): ?>
+                        <tr data-title="<?= strtolower(htmlspecialchars($file['title'] ?? '')) ?>"
+                            data-tags="<?= strtolower(htmlspecialchars($file['tags'] ?? '')) ?>">
+                            <td class="mono" style="font-weight:600;"><?= htmlspecialchars($file['title'] ?? 'Untitled') ?></td>
+                            <td>
+                                <?php foreach (explode(',', $file['tags'] ?? 'General') as $tag): ?>
+                                    <span class="tag-pill"><?= htmlspecialchars(trim($tag)) ?></span>
+                                <?php endforeach; ?>
+                            </td>
+                            <td class="mono" style="font-size:0.78rem;white-space:nowrap;"><?= date('M d, Y', strtotime($file['uploaded_at'] ?? 'now')) ?></td>
+                            <td style="text-align:right;white-space:nowrap;">
+                                <button class="tbl-btn" onclick="openPreview('<?= $file['id'] ?>', '<?= htmlspecialchars($file['title'], ENT_QUOTES) ?>')" title="Preview">
+                                    <i data-lucide="eye" style="width:16px;color:var(--accent);"></i>
+                                </button>
+                                <a href="index.php?action=save-to-catalog&id=<?= $file['id'] ?>" class="tbl-btn" title="Save to Catalog">
+                                    <i data-lucide="bookmark-plus" style="width:16px;color:var(--green);"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Private Catalog -->
@@ -646,38 +628,40 @@ $currentFolderId = $_GET['folder_id'] ?? null;
             <?php if (empty($userFiles)): ?>
                 <p style="text-align:center;color:var(--text-faint);padding:32px;font-size:0.85rem;">No documents in this view.</p>
             <?php else: ?>
-            <table class="bloomberg-table">
-                <thead>
-                    <tr>
-                        <th style="width:36px;"></th>
-                        <th>Document Name</th>
-                        <th>Location</th>
-                        <th style="text-align:right;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="private-tbody">
-                    <?php foreach ($userFiles as $item): ?>
-                    <tr data-file-id="<?= $item['document_id'] ?>"
-                        data-title="<?= strtolower(htmlspecialchars($item['custom_display_name'] ?? $item['title'] ?? '')) ?>"
-                        draggable="true"
-                        ondragstart="fileDragStart(event, <?= $item['document_id'] ?>)">
-                        <td><i data-lucide="file-text" style="width:16px;color:var(--text-faint);"></i></td>
-                        <td style="font-weight:600;"><?= htmlspecialchars($item['custom_display_name'] ?? $item['title']) ?></td>
-                        <td class="mono" style="font-size:0.72rem;color:var(--text-faint);">
-                            <?= $item['folder_id'] ? 'FOLDER: ' . $item['folder_id'] : 'ROOT' ?>
-                        </td>
-                        <td style="text-align:right;white-space:nowrap;">
-                            <button class="tbl-btn" onclick="openPreview('<?= $item['document_id'] ?>', '<?= htmlspecialchars($item['custom_display_name'] ?? $item['title'], ENT_QUOTES) ?>')" title="Preview">
-                                <i data-lucide="maximize-2" style="width:15px;color:var(--accent);"></i>
-                            </button>
-                            <button class="tbl-btn danger" onclick="removeFromCatalog(<?= $item['document_id'] ?>, this)" title="Remove from Catalog">
-                                <i data-lucide="trash-2" style="width:15px;color:var(--red);"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table class="bloomberg-table">
+                    <thead>
+                        <tr>
+                            <th style="width:36px;"></th>
+                            <th>Document Name</th>
+                            <th>Location</th>
+                            <th style="text-align:right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="private-tbody">
+                        <?php foreach ($userFiles as $item): ?>
+                        <tr data-file-id="<?= $item['document_id'] ?>"
+                            data-title="<?= strtolower(htmlspecialchars($item['custom_display_name'] ?? $item['title'] ?? '')) ?>"
+                            draggable="true"
+                            ondragstart="fileDragStart(event, <?= $item['document_id'] ?>)">
+                            <td><i data-lucide="file-text" style="width:16px;color:var(--text-faint);"></i></td>
+                            <td style="font-weight:600;"><?= htmlspecialchars($item['custom_display_name'] ?? $item['title']) ?></td>
+                            <td class="mono" style="font-size:0.72rem;color:var(--text-faint);white-space:nowrap;">
+                                <?= $item['folder_id'] ? 'FOLDER: ' . $item['folder_id'] : 'ROOT' ?>
+                            </td>
+                            <td style="text-align:right;white-space:nowrap;">
+                                <button class="tbl-btn" onclick="openPreview('<?= $item['document_id'] ?>', '<?= htmlspecialchars($item['custom_display_name'] ?? $item['title'], ENT_QUOTES) ?>')" title="Preview">
+                                    <i data-lucide="maximize-2" style="width:15px;color:var(--accent);"></i>
+                                </button>
+                                <button class="tbl-btn danger" onclick="removeFromCatalog(<?= $item['document_id'] ?>, this)" title="Remove from Catalog">
+                                    <i data-lucide="trash-2" style="width:15px;color:var(--red);"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
             <?php endif; ?>
         </div>
 
@@ -685,12 +669,9 @@ $currentFolderId = $_GET['folder_id'] ?? null;
 </div>
 
 <?php
-/**
- * Renders the folder tree recursively as <li> elements
- */
 function renderFolderTree(array $tree, $currentFolderId): void {
     foreach ($tree as $folder) {
-        $isActive  = ($folder['id'] == $currentFolderId);
+        $isActive    = ($folder['id'] == $currentFolderId);
         $hasChildren = !empty($folder['children']);
         $activeClass = $isActive ? 'active' : '';
         ?>
@@ -699,8 +680,6 @@ function renderFolderTree(array $tree, $currentFolderId): void {
                  ondragover="allowFolderDrop(event,this)"
                  ondragleave="this.classList.remove('drop-target')"
                  ondrop="dropToFolder(event,<?= $folder['id'] ?>)">
-
-                <!-- Chevron -->
                 <?php if ($hasChildren): ?>
                 <button class="chevron-btn open" onclick="toggleFolder(this)" style="margin-right:2px;">
                     <i data-lucide="chevron-right" style="width:13px;"></i>
@@ -708,13 +687,10 @@ function renderFolderTree(array $tree, $currentFolderId): void {
                 <?php else: ?>
                 <span style="width:17px;flex-shrink:0;display:inline-block;"></span>
                 <?php endif; ?>
-
                 <a href="index.php?action=dashboard&folder_id=<?= $folder['id'] ?>" class="folder-left">
                     <i data-lucide="folder" style="width:14px;flex-shrink:0;"></i>
                     <span class="folder-name"><?= htmlspecialchars($folder['name']) ?></span>
                 </a>
-
-                <!-- Action buttons -->
                 <div class="folder-actions">
                     <button class="folder-act-btn" onclick="startRename(<?= $folder['id'] ?>, '<?= addslashes($folder['name']) ?>', event)" title="Rename">
                         <i data-lucide="edit-2" style="width:12px;"></i>
@@ -727,7 +703,6 @@ function renderFolderTree(array $tree, $currentFolderId): void {
                     </button>
                 </div>
             </div>
-
             <?php if ($hasChildren): ?>
             <div class="folder-children">
                 <ul class="folder-tree">
@@ -743,6 +718,18 @@ function renderFolderTree(array $tree, $currentFolderId): void {
 
 <script>
 lucide.createIcons();
+
+/* ── SIDEBAR (mobile) ── */
+function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('sidebar-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+}
 
 /* ── TOAST ── */
 function showToast(msg, type = 'success') {
@@ -775,7 +762,7 @@ function closePreview() {
     document.getElementById('preview-frame').src = '';
     document.body.style.overflow = 'auto';
 }
-window.addEventListener('keydown', e => { if (e.key === 'Escape') { closePreview(); closeAdvSearch(); } });
+window.addEventListener('keydown', e => { if (e.key === 'Escape') { closePreview(); closeAdvSearch(); closeSidebar(); } });
 
 /* ── UPLOAD ── */
 const dropZone   = document.getElementById('drop-zone');
@@ -791,7 +778,6 @@ function setPrivacy(val) {
     document.getElementById('public-btn').className  = val ? 'toggle-btn active' : 'toggle-btn inactive';
     document.getElementById('private-btn').className = val ? 'toggle-btn inactive' : 'toggle-btn active';
 }
-
 dropZone.onclick = () => fileInput.click();
 dropZone.ondragover = e => { e.preventDefault(); dropZone.classList.add('dragover'); };
 dropZone.ondragleave = () => dropZone.classList.remove('dragover');
@@ -800,7 +786,6 @@ dropZone.ondrop = e => {
     if (e.dataTransfer.files.length > 0) { fileInput.files = e.dataTransfer.files; handleSelection(e.dataTransfer.files[0]); }
 };
 fileInput.onchange = e => { if (e.target.files.length > 0) handleSelection(e.target.files[0]); };
-
 function handleSelection(file) {
     fileStatus.innerText = 'Selected: ' + file.name;
     titleInput.value = file.name.replace('.pdf', '');
@@ -811,21 +796,18 @@ function resetUI() {
     actionBar.classList.remove('visible');
     fileStatus.innerText = 'Drag PDF here or click to browse';
 }
-
 uploadBtn.onclick = () => {
     const file = fileInput.files[0];
     if (!file || !titleInput.value) return;
     uploadBtn.disabled = true;
     uploadBtn.innerHTML = '<i data-lucide="loader" style="width:16px;"></i> Uploading…';
     lucide.createIcons();
-
     const fd = new FormData();
     fd.append('document', file);
     fd.append('title', titleInput.value);
     fd.append('description', document.getElementById('doc-desc').value);
     fd.append('tags', document.getElementById('doc-tags').value);
     fd.append('is_public', isPublic ? '1' : '0');
-
     fetch('index.php?action=upload-doc', { method: 'POST', body: fd })
         .then(r => r.json())
         .then(data => {
@@ -842,27 +824,21 @@ function removeFromCatalog(fileId, btn) {
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                row.style.opacity = '0';
-                row.style.transition = 'opacity 0.3s';
+                row.style.opacity = '0'; row.style.transition = 'opacity 0.3s';
                 setTimeout(() => row.remove(), 300);
                 showToast('Removed from catalog.');
-            } else {
-                showToast(data.message || 'Failed to remove.', 'error');
-            }
+            } else { showToast(data.message || 'Failed to remove.', 'error'); }
         });
 }
 
 /* ── SIMPLE SEARCH ── */
 function runSimpleSearch(q) {
     q = q.toLowerCase().trim();
-    // Search both tables
     ['global-tbody', 'private-tbody'].forEach(id => {
         const tbody = document.getElementById(id);
         if (!tbody) return;
         tbody.querySelectorAll('tr').forEach(row => {
-            const title = row.dataset.title || '';
-            const tags  = row.dataset.tags  || '';
-            const match = !q || title.includes(q) || tags.includes(q);
+            const match = !q || (row.dataset.title || '').includes(q) || (row.dataset.tags || '').includes(q);
             row.style.display = match ? '' : 'none';
             row.classList.toggle('search-highlight', !!q && match);
         });
@@ -877,160 +853,83 @@ async function runAdvSearch() {
     const query = document.getElementById('adv-query').value.trim();
     const scope = document.getElementById('adv-scope').value;
     const tags  = document.getElementById('adv-tags').value.trim();
-
     if (!query) return;
-
     const status  = document.getElementById('advsearch-status');
     const results = document.getElementById('advsearch-results');
-
-    status.style.display = 'block';
-    status.textContent = 'Searching file content…';
-    results.style.display = 'none';
-    results.innerHTML = '';
-
+    status.style.display = 'block'; status.textContent = 'Searching file content…';
+    results.style.display = 'none'; results.innerHTML = '';
     try {
         const res  = await fetch('index.php?action=search-content', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query, scope, tags })
         });
-
-        const text = await res.text(); // Read as text first
-        console.log('Raw response:', text); // Check for junk before JSON
-
-        const data = JSON.parse(text); // Then parse manually
-
-        status.style.display = 'none';
-        results.style.display = 'block';
-
+        const text = await res.text();
+        const data = JSON.parse(text);
+        status.style.display = 'none'; results.style.display = 'block';
         if (!data.results || data.results.length === 0) {
             results.innerHTML = '<p style="text-align:center;color:var(--text-faint);font-size:0.82rem;">No results found.</p>';
             return;
         }
-
         data.results.forEach(item => {
             const div = document.createElement('div');
             div.className = 'advsearch-result-item';
-            div.innerHTML = `
-                <div class="res-title">${item.title}</div>
-                <div class="res-snippet">${item.snippet}</div>
-            `;
+            div.innerHTML = `<div class="res-title">${item.title}</div><div class="res-snippet">${item.snippet}</div>`;
             div.onclick = () => { openPreview(item.id, item.title); closeAdvSearch(); };
             results.appendChild(div);
         });
-
     } catch (err) {
-        console.error('Search error:', err);
-        status.style.display = 'none';
-        results.style.display = 'block';
+        status.style.display = 'none'; results.style.display = 'block';
         results.innerHTML = '<p style="text-align:center;color:var(--red);font-size:0.82rem;">Search failed: ' + err.message + '</p>';
     }
 }
-document.getElementById('adv-query').addEventListener('keydown', e => {
-    if (e.key === 'Enter') runAdvSearch();
-});
+document.getElementById('adv-query').addEventListener('keydown', e => { if (e.key === 'Enter') runAdvSearch(); });
 
-/* ── FOLDER TREE: TOGGLE ── */
+/* ── FOLDER TREE ── */
 function toggleFolder(chevronBtn) {
     chevronBtn.classList.toggle('open');
-    const li = chevronBtn.closest('li');
-    const children = li.querySelector('.folder-children');
+    const children = chevronBtn.closest('li').querySelector('.folder-children');
     if (children) children.style.display = chevronBtn.classList.contains('open') ? '' : 'none';
 }
 
-/* ── FOLDER TREE: CREATE ── */
 let _newFolderParent = null;
-
 function showNewFolderInput(parentId, e) {
     if (e) e.stopPropagation();
     _newFolderParent = parentId;
-    const container = document.getElementById('new-folder-container');
-    container.style.display = 'block';
+    const c = document.getElementById('new-folder-container');
+    c.style.display = 'block';
     document.getElementById('new-folder-name').value = '';
     document.getElementById('new-folder-name').focus();
 }
-
 function confirmNewFolder() {
     const name = document.getElementById('new-folder-name').value.trim();
     if (!name) return;
-
-    fetch('index.php?action=create-folder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, parent_id: _newFolderParent })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) { showToast('Folder created.'); location.reload(); }
-        else showToast(data.message || 'Failed.', 'error');
-    });
+    fetch('index.php?action=create-folder', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, parent_id: _newFolderParent }) })
+    .then(r => r.json()).then(data => { if (data.success) { showToast('Folder created.'); location.reload(); } else showToast(data.message || 'Failed.', 'error'); });
 }
-
-/* ── FOLDER TREE: RENAME ── */
 function startRename(folderId, currentName, e) {
     e.stopPropagation();
     const newName = prompt('Rename folder:', currentName);
     if (!newName || newName === currentName) return;
-
-    fetch('index.php?action=rename-folder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ folder_id: folderId, name: newName })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) { showToast('Renamed.'); location.reload(); }
-        else showToast(data.message || 'Failed.', 'error');
-    });
+    fetch('index.php?action=rename-folder', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ folder_id: folderId, name: newName }) })
+    .then(r => r.json()).then(data => { if (data.success) { showToast('Renamed.'); location.reload(); } else showToast(data.message || 'Failed.', 'error'); });
 }
-
-/* ── FOLDER TREE: DELETE ── */
 function deleteFolder(folderId, e) {
     e.stopPropagation();
     if (!confirm('Delete this folder? Contents will be moved to Root.')) return;
-
-    fetch('index.php?action=delete-folder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ folder_id: folderId })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) { showToast('Folder deleted.'); location.reload(); }
-        else showToast(data.message || 'Failed.', 'error');
-    });
+    fetch('index.php?action=delete-folder', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ folder_id: folderId }) })
+    .then(r => r.json()).then(data => { if (data.success) { showToast('Folder deleted.'); location.reload(); } else showToast(data.message || 'Failed.', 'error'); });
 }
 
-/* ── DRAG & DROP FILES INTO FOLDERS ── */
+/* ── DRAG & DROP ── */
 let _draggingFileId = null;
-
-function fileDragStart(e, fileId) {
-    _draggingFileId = fileId;
-    e.dataTransfer.effectAllowed = 'move';
-}
-
-function allowFolderDrop(e, rowEl) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (rowEl) rowEl.classList.add('drop-target');
-}
-
+function fileDragStart(e, fileId) { _draggingFileId = fileId; e.dataTransfer.effectAllowed = 'move'; }
+function allowFolderDrop(e, rowEl) { e.preventDefault(); e.stopPropagation(); if (rowEl) rowEl.classList.add('drop-target'); }
 function dropToFolder(e, folderId) {
     e.preventDefault(); e.stopPropagation();
     document.querySelectorAll('.folder-row').forEach(r => r.classList.remove('drop-target'));
     if (_draggingFileId === null) return;
-
-    fetch('index.php?action=move-file', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ file_id: _draggingFileId, folder_id: folderId })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) { showToast('File moved.'); location.reload(); }
-        else showToast(data.message || 'Move failed.', 'error');
-    });
-
+    fetch('index.php?action=move-file', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ file_id: _draggingFileId, folder_id: folderId }) })
+    .then(r => r.json()).then(data => { if (data.success) { showToast('File moved.'); location.reload(); } else showToast(data.message || 'Move failed.', 'error'); });
     _draggingFileId = null;
 }
 </script>

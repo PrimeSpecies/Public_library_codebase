@@ -38,7 +38,19 @@
             color: var(--ink);
             display: flex;
             min-height: 100vh;
+            overflow-x: hidden;
         }
+
+        /* ── SIDEBAR OVERLAY (mobile) ── */
+        #sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(10,14,26,0.5);
+            z-index: 99;
+            backdrop-filter: blur(2px);
+        }
+        #sidebar-overlay.open { display: block; }
 
         /* ── SIDEBAR ── */
         .sidebar {
@@ -50,6 +62,7 @@
             position: fixed;
             top: 0; left: 0; bottom: 0;
             z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
         }
 
         .sidebar-brand {
@@ -63,9 +76,7 @@
             color: #fff;
             letter-spacing: -0.3px;
         }
-        .sidebar-brand .logo span {
-            color: var(--accent);
-        }
+        .sidebar-brand .logo span { color: var(--accent); }
         .sidebar-brand .role-badge {
             display: inline-block;
             margin-top: 6px;
@@ -85,6 +96,7 @@
             display: flex;
             flex-direction: column;
             gap: 2px;
+            overflow-y: auto;
         }
 
         .nav-item {
@@ -104,7 +116,7 @@
             width: 100%;
             text-align: left;
         }
-        .nav-item:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; }
+        .nav-item:hover  { background: rgba(255,255,255,0.06); color: #e2e8f0; }
         .nav-item.active { background: rgba(37,99,235,0.15); color: #fff; }
         .nav-item.active i { color: #60a5fa; }
 
@@ -120,6 +132,7 @@
         .sidebar-footer {
             padding: 16px 12px;
             border-top: 1px solid rgba(255,255,255,0.07);
+            flex-shrink: 0;
         }
         .admin-info {
             display: flex;
@@ -148,13 +161,14 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            min-width: 0;
         }
 
-        /* Top bar */
+        /* ── TOPBAR ── */
         .topbar {
             background: var(--surface);
             border-bottom: 1px solid var(--border);
-            padding: 0 32px;
+            padding: 0 24px;
             height: 60px;
             display: flex;
             align-items: center;
@@ -162,22 +176,42 @@
             position: sticky;
             top: 0;
             z-index: 50;
+            gap: 12px;
+        }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
         }
         .topbar-title {
             font-size: 0.95rem;
             font-weight: 700;
             color: var(--ink);
+            white-space: nowrap;
         }
         .topbar-right {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        /* Hamburger */
+        .hamburger {
+            display: none;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 7px;
+            cursor: pointer;
+            color: var(--ink);
+            align-items: center;
+            flex-shrink: 0;
         }
 
         /* Search bar */
-        .search-wrap {
-            position: relative;
-        }
+        .search-wrap { position: relative; }
         .search-wrap input {
             padding: 8px 12px 8px 34px;
             border: 1px solid var(--border);
@@ -186,52 +220,42 @@
             font-family: var(--sans);
             background: var(--bg);
             color: var(--ink);
-            width: 220px;
+            width: 200px;
             transition: all 0.2s;
         }
-        .search-wrap input:focus { outline: none; border-color: var(--accent); background: white; width: 260px; }
+        .search-wrap input:focus { outline: none; border-color: var(--accent); background: white; width: 240px; }
         .search-wrap .si {
             position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
             color: var(--faint); pointer-events: none;
         }
 
-        /* Content */
-        .content {
-            padding: 32px;
-            flex: 1;
-        }
+        /* ── CONTENT ── */
+        .content { padding: 24px; flex: 1; }
 
-        .page-header {
-            margin-bottom: 28px;
-        }
+        .page-header { margin-bottom: 24px; }
         .page-header h1 {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 700;
             letter-spacing: -0.5px;
             color: var(--ink);
         }
-        .page-header p {
-            color: var(--muted);
-            font-size: 0.875rem;
-            margin-top: 4px;
-        }
+        .page-header p { color: var(--muted); font-size: 0.875rem; margin-top: 4px; }
 
         /* ── STAT CARDS ── */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 28px;
+            gap: 14px;
+            margin-bottom: 24px;
         }
-
         .stat-card {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 20px;
+            padding: 18px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
         .stat-card-top {
             display: flex;
@@ -239,29 +263,24 @@
             align-items: flex-start;
         }
         .stat-icon {
-            width: 38px; height: 38px;
-            border-radius: 9px;
+            width: 36px; height: 36px;
+            border-radius: 8px;
             display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
         }
         .stat-value {
-            font-size: 1.75rem;
+            font-size: 1.6rem;
             font-weight: 700;
             font-family: var(--mono);
             letter-spacing: -1px;
             line-height: 1;
         }
         .stat-label {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: var(--muted);
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-        }
-        .stat-delta {
-            font-size: 0.72rem;
-            font-weight: 600;
-            padding: 2px 7px;
-            border-radius: 4px;
         }
 
         /* ── TABLE CARD ── */
@@ -273,22 +292,20 @@
         }
 
         .table-toolbar {
-            padding: 16px 20px;
+            padding: 14px 18px;
             border-bottom: 1px solid var(--border-s);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: 10px;
+            flex-wrap: wrap;
         }
         .table-toolbar-left {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
-        .table-toolbar h2 {
-            font-size: 0.9rem;
-            font-weight: 700;
-        }
+        .table-toolbar h2 { font-size: 0.9rem; font-weight: 700; }
         .record-count {
             font-size: 0.72rem;
             background: var(--border-s);
@@ -298,11 +315,7 @@
             font-weight: 600;
         }
 
-        /* Filter pills */
-        .filter-pills {
-            display: flex;
-            gap: 6px;
-        }
+        .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
         .filter-pill {
             padding: 5px 12px;
             border-radius: 20px;
@@ -318,17 +331,13 @@
         .filter-pill:hover { border-color: var(--accent); color: var(--accent); }
         .filter-pill.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.845rem;
-        }
-        thead tr {
-            background: var(--bg);
-            border-bottom: 1px solid var(--border);
-        }
+        /* ── RESPONSIVE TABLE WRAPPER ── */
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.845rem; min-width: 600px; }
+        thead tr { background: var(--bg); border-bottom: 1px solid var(--border); }
         th {
-            padding: 11px 16px;
+            padding: 11px 14px;
             text-align: left;
             font-size: 0.7rem;
             font-weight: 700;
@@ -337,203 +346,199 @@
             letter-spacing: 0.07em;
             white-space: nowrap;
         }
-        td {
-            padding: 13px 16px;
-            border-bottom: 1px solid var(--border-s);
-            vertical-align: middle;
-        }
+        td { padding: 12px 14px; border-bottom: 1px solid var(--border-s); vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         tbody tr { transition: background 0.1s; }
         tbody tr:hover td { background: var(--bg); }
         tbody tr.suspended td { opacity: 0.6; }
 
         /* User cell */
-        .user-cell {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .user-cell { display: flex; align-items: center; gap: 10px; }
         .user-avatar {
-            width: 34px; height: 34px;
+            width: 32px; height: 32px;
             border-radius: 8px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 0.78rem;
-            font-weight: 700;
-            color: white;
+            font-size: 0.75rem; font-weight: 700; color: white;
             flex-shrink: 0;
             font-family: var(--mono);
         }
-        .user-name { font-weight: 600; color: var(--ink); font-size: 0.875rem; }
-        .user-email { font-size: 0.75rem; color: var(--muted); font-family: var(--mono); }
+        .user-name  { font-weight: 600; color: var(--ink); font-size: 0.85rem; }
+        .user-email { font-size: 0.72rem; color: var(--muted); font-family: var(--mono); }
+        .mono-cell  { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-3); }
 
-        .mono-cell { font-family: var(--mono); font-size: 0.8rem; color: var(--ink-3); }
-
-        /* Status badge */
+        /* Badges */
         .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 9px; border-radius: 20px;
+            font-size: 0.68rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            white-space: nowrap;
         }
         .badge-active    { background: var(--green-s); color: var(--green); }
         .badge-suspended { background: var(--red-s);   color: var(--red); }
-        .badge-dot {
-            width: 6px; height: 6px;
-            border-radius: 50%;
-        }
+        .badge-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
         .badge-active .badge-dot    { background: var(--green); }
         .badge-suspended .badge-dot { background: var(--red); }
 
-        /* Toggle switch */
-        .toggle {
-            position: relative;
-            width: 40px; height: 22px;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
+        /* Toggle */
+        .toggle { position: relative; width: 38px; height: 21px; cursor: pointer; flex-shrink: 0; }
         .toggle input { opacity: 0; width: 0; height: 0; }
         .toggle-track {
-            position: absolute;
-            inset: 0;
-            border-radius: 11px;
-            background: #d1d5db;
-            transition: background 0.2s;
+            position: absolute; inset: 0;
+            border-radius: 11px; background: #d1d5db; transition: background 0.2s;
         }
         .toggle input:checked + .toggle-track { background: var(--green); }
         .toggle-thumb {
-            position: absolute;
-            top: 3px; left: 3px;
-            width: 16px; height: 16px;
-            border-radius: 50%;
-            background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            position: absolute; top: 3px; left: 3px;
+            width: 15px; height: 15px; border-radius: 50%;
+            background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
             transition: transform 0.2s;
         }
-        .toggle input:checked ~ .toggle-thumb { transform: translateX(18px); }
+        .toggle input:checked ~ .toggle-thumb { transform: translateX(17px); }
         .toggle.loading .toggle-track { background: var(--amber); }
 
         /* Action cell */
-        .action-cell {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            justify-content: flex-end;
-        }
+        .action-cell { display: flex; align-items: center; gap: 6px; justify-content: flex-end; }
         .icon-btn {
-            background: none;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 5px 8px;
-            cursor: pointer;
-            color: var(--muted);
+            background: none; border: 1px solid var(--border);
+            border-radius: 6px; padding: 5px 7px;
+            cursor: pointer; color: var(--muted);
             display: flex; align-items: center;
-            transition: all 0.15s;
-            font-family: var(--sans);
-            font-size: 0.78rem;
-            gap: 5px;
+            transition: all 0.15s; font-family: var(--sans); font-size: 0.78rem; gap: 4px;
         }
-        .icon-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-s); }
+        .icon-btn:hover        { border-color: var(--accent); color: var(--accent); background: var(--accent-s); }
         .icon-btn.danger:hover { border-color: var(--red); color: var(--red); background: var(--red-s); }
+
+        /* ── MOBILE CARDS (hidden on desktop) ── */
+        .mobile-user-list { display: none; }
+        .mobile-user-card {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-s);
+        }
+        .mobile-user-card:last-child { border-bottom: none; }
+        .mobile-card-top {
+            display: flex; align-items: center;
+            justify-content: space-between; margin-bottom: 12px;
+        }
+        .mobile-card-left { display: flex; align-items: center; gap: 10px; }
+        .mobile-card-meta {
+            display: flex; gap: 8px; align-items: center;
+            flex-wrap: wrap; margin-bottom: 12px;
+        }
+        .mobile-card-actions { display: flex; gap: 8px; align-items: center; }
 
         /* Toast */
         #toast {
-            position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-            padding: 12px 18px; border-radius: 10px;
-            font-size: 0.85rem; font-family: var(--sans); font-weight: 500;
+            position: fixed; bottom: 20px; right: 16px; z-index: 9999;
+            padding: 11px 16px; border-radius: 10px;
+            font-size: 0.83rem; font-family: var(--sans); font-weight: 500;
             box-shadow: 0 8px 24px rgba(0,0,0,0.12);
             transform: translateY(60px); opacity: 0;
             transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
             pointer-events: none;
-            display: flex; align-items: center; gap: 8px;
+            max-width: calc(100vw - 32px);
         }
-        #toast.show { transform: translateY(0); opacity: 1; }
+        #toast.show   { transform: translateY(0); opacity: 1; }
         #toast.success { background: #052e16; color: #86efac; }
         #toast.error   { background: #450a0a; color: #fca5a5; }
         #toast.info    { background: var(--ink); color: #e2e8f0; }
 
         /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--faint);
-        }
-        .empty-state i { margin-bottom: 12px; }
-        .empty-state p { font-size: 0.875rem; }
+        .empty-state { text-align: center; padding: 48px 20px; color: var(--faint); }
+        .empty-state p { font-size: 0.875rem; margin-top: 8px; }
 
         /* Confirm modal */
         #confirm-modal {
-            display: none;
-            position: fixed; inset: 0;
+            display: none; position: fixed; inset: 0;
             background: rgba(10,14,26,0.7);
-            z-index: 9998;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(4px);
+            z-index: 9998; align-items: center; justify-content: center;
+            backdrop-filter: blur(4px); padding: 16px;
         }
         #confirm-modal.open { display: flex; }
         .confirm-box {
-            background: var(--surface);
-            border-radius: 14px;
-            padding: 28px;
-            width: 380px;
+            background: var(--surface); border-radius: 14px; padding: 24px;
+            width: 100%; max-width: 380px;
             box-shadow: 0 24px 48px rgba(0,0,0,0.2);
         }
         .confirm-box h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
         .confirm-box p  { font-size: 0.875rem; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
         .confirm-actions { display: flex; gap: 10px; justify-content: flex-end; }
-        .btn {
-            padding: 9px 18px;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            font-family: var(--sans);
-            transition: all 0.15s;
-        }
+        .btn { padding: 9px 18px; border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer; border: none; font-family: var(--sans); transition: all 0.15s; }
         .btn-ghost  { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
-        .btn-ghost:hover { background: var(--border-s); }
+        .btn-ghost:hover  { background: var(--border-s); }
         .btn-danger { background: var(--red); color: white; }
         .btn-danger:hover { background: #b91c1c; }
-        .btn-primary { background: var(--accent); color: white; }
-        .btn-primary:hover { background: #1d4ed8; }
 
         /* Pagination */
         .pagination {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 20px;
-            border-top: 1px solid var(--border-s);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 18px; border-top: 1px solid var(--border-s); flex-wrap: wrap; gap: 10px;
         }
         .pagination-info { font-size: 0.78rem; color: var(--muted); }
         .pagination-btns { display: flex; gap: 6px; }
         .page-btn {
-            width: 32px; height: 32px;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            background: var(--surface);
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.8rem;
-            color: var(--muted);
-            transition: all 0.15s;
+            width: 32px; height: 32px; border-radius: 6px;
+            border: 1px solid var(--border); background: var(--surface);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; color: var(--muted); transition: all 0.15s;
         }
-        .page-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .page-btn:hover  { border-color: var(--accent); color: var(--accent); }
         .page-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
         .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ── RESPONSIVE BREAKPOINTS ── */
+
+        /* Tablet */
+        @media (max-width: 1024px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+
+            .main { margin-left: 0; }
+
+            .hamburger { display: flex; }
+
+            .topbar { padding: 0 16px; }
+            .topbar-title { font-size: 0.875rem; }
+
+            /* Hide search in topbar on mobile — search is in toolbar */
+            .topbar-right .search-wrap { display: none; }
+
+            .content { padding: 16px; }
+
+            .page-header h1 { font-size: 1.25rem; }
+
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .stat-value { font-size: 1.4rem; }
+
+            /* Hide desktop table, show mobile cards */
+            .table-wrapper { display: none; }
+            .mobile-user-list { display: block; }
+
+            /* Show mobile search in toolbar */
+            .mobile-search-wrap { display: block !important; }
+
+            .table-toolbar { flex-direction: column; align-items: flex-start; }
+            .filter-pills { width: 100%; }
+
+            .pagination { flex-direction: column; align-items: flex-start; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .stat-card { padding: 14px; }
+            .stat-value { font-size: 1.25rem; }
+            .stat-label { font-size: 0.65rem; }
+        }
     </style>
 </head>
 <body>
 
 <?php
-
-// Calculate stats
 $totalUsers     = count($users);
 $suspendedUsers = 0;
 $adminUsers     = 0;
@@ -543,19 +548,16 @@ foreach ($users as $u) {
 }
 $activeUsers = $totalUsers - $suspendedUsers;
 
-// Avatar color palette
 $avatarColors = ['#2563eb','#7c3aed','#db2777','#059669','#d97706','#dc2626','#0891b2','#65a30d'];
-function avatarColor($str, $colors) {
-    return $colors[abs(crc32($str)) % count($colors)];
-}
+function avatarColor($str, $colors) { return $colors[abs(crc32($str)) % count($colors)]; }
 function initials($name) {
     $parts = explode(' ', trim($name));
     return strtoupper(substr($parts[0],0,1) . (isset($parts[1]) ? substr($parts[1],0,1) : ''));
 }
 ?>
 
-<!-- Toast -->
 <div id="toast"></div>
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
 <!-- Confirm Modal -->
 <div id="confirm-modal">
@@ -570,12 +572,11 @@ function initials($name) {
 </div>
 
 <!-- SIDEBAR -->
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
         <div class="logo">Research<span>Hub</span></div>
         <div class="role-badge">Admin Panel</div>
     </div>
-
     <nav class="sidebar-nav">
         <div class="nav-section-label">Management</div>
         <a href="index.php?action=admin-dashboard" class="nav-item active">
@@ -587,7 +588,6 @@ function initials($name) {
         <a href="#" class="nav-item">
             <i data-lucide="bar-chart-2" style="width:16px;"></i> Analytics
         </a>
-
         <div class="nav-section-label" style="margin-top:8px;">System</div>
         <a href="#" class="nav-item">
             <i data-lucide="settings" style="width:16px;"></i> Settings
@@ -596,7 +596,6 @@ function initials($name) {
             <i data-lucide="shield" style="width:16px;"></i> Security
         </a>
     </nav>
-
     <div class="sidebar-footer">
         <div class="admin-info">
             <div class="admin-avatar"><?= initials($_SESSION['user_email'] ?? 'Admin') ?></div>
@@ -616,18 +615,22 @@ function initials($name) {
 
     <!-- Topbar -->
     <div class="topbar">
-        <div class="topbar-title">User Management</div>
+        <div class="topbar-left">
+            <button class="hamburger" onclick="openSidebar()">
+                <i data-lucide="menu" style="width:18px;"></i>
+            </button>
+            <div class="topbar-title">User Management</div>
+        </div>
         <div class="topbar-right">
             <div class="search-wrap">
                 <i data-lucide="search" class="si" style="width:14px;"></i>
-                <input type="text" id="user-search" placeholder="Search users…" oninput="filterTable(this.value)">
+                <input type="text" id="user-search-desktop" placeholder="Search users…" oninput="filterTable(this.value)">
             </div>
         </div>
     </div>
 
     <div class="content">
 
-        <!-- Page Header -->
         <div class="page-header">
             <h1>All Users</h1>
             <p>Manage accounts, monitor activity, and control access.</p>
@@ -642,11 +645,10 @@ function initials($name) {
                         <div class="stat-value" style="color:var(--ink);"><?= $totalUsers ?></div>
                     </div>
                     <div class="stat-icon" style="background:#eff6ff;">
-                        <i data-lucide="users" style="width:18px;color:var(--accent);"></i>
+                        <i data-lucide="users" style="width:17px;color:var(--accent);"></i>
                     </div>
                 </div>
             </div>
-
             <div class="stat-card">
                 <div class="stat-card-top">
                     <div>
@@ -654,11 +656,10 @@ function initials($name) {
                         <div class="stat-value" style="color:var(--green);"><?= $activeUsers ?></div>
                     </div>
                     <div class="stat-icon" style="background:var(--green-s);">
-                        <i data-lucide="user-check" style="width:18px;color:var(--green);"></i>
+                        <i data-lucide="user-check" style="width:17px;color:var(--green);"></i>
                     </div>
                 </div>
             </div>
-
             <div class="stat-card">
                 <div class="stat-card-top">
                     <div>
@@ -666,11 +667,10 @@ function initials($name) {
                         <div class="stat-value" style="color:var(--red);"><?= $suspendedUsers ?></div>
                     </div>
                     <div class="stat-icon" style="background:var(--red-s);">
-                        <i data-lucide="user-x" style="width:18px;color:var(--red);"></i>
+                        <i data-lucide="user-x" style="width:17px;color:var(--red);"></i>
                     </div>
                 </div>
             </div>
-
             <div class="stat-card">
                 <div class="stat-card-top">
                     <div>
@@ -678,107 +678,163 @@ function initials($name) {
                         <div class="stat-value" style="color:var(--amber);"><?= $adminUsers ?></div>
                     </div>
                     <div class="stat-icon" style="background:var(--amber-s);">
-                        <i data-lucide="shield" style="width:18px;color:var(--amber);"></i>
+                        <i data-lucide="shield" style="width:17px;color:var(--amber);"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Table -->
+        <!-- Table Card -->
         <div class="table-card">
             <div class="table-toolbar">
                 <div class="table-toolbar-left">
                     <h2>Users</h2>
                     <span class="record-count" id="record-count"><?= $totalUsers ?> records</span>
                 </div>
-                <div class="filter-pills">
-                    <button class="filter-pill active" onclick="setFilter('all', this)">All</button>
-                    <button class="filter-pill" onclick="setFilter('active', this)">Active</button>
-                    <button class="filter-pill" onclick="setFilter('suspended', this)">Suspended</button>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;width:100%;">
+                    <!-- Mobile search (shown only on mobile) -->
+                    <div class="search-wrap mobile-search-wrap" style="display:none;flex:1;">
+                        <i data-lucide="search" class="si" style="width:14px;"></i>
+                        <input type="text" id="user-search-mobile" placeholder="Search users…"
+                               oninput="filterTable(this.value)" style="width:100%;">
+                    </div>
+                    <div class="filter-pills">
+                        <button class="filter-pill active" onclick="setFilter('all', this)">All</button>
+                        <button class="filter-pill" onclick="setFilter('active', this)">Active</button>
+                        <button class="filter-pill" onclick="setFilter('suspended', this)">Suspended</button>
+                    </div>
                 </div>
             </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Username</th>
-                        <th>Joined</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Active</th>
-                        <th style="text-align:right;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="user-tbody">
-                    <?php foreach ($users as $u):
-                        $isSuspended = ($u['is_suspended'] === 't' || $u['is_suspended'] === true);
-                        $isActive    = !$isSuspended;
-                        $name        = $u['username'] ?? $u['email'];
-                        $color       = avatarColor($u['email'], $avatarColors);
-                        $initials    = initials($name);
-                        $role        = $u['role'] ?? 'user';
-                        $joined      = isset($u['created_at']) ? date('M d, Y', strtotime($u['created_at'])) : '—';
-                    ?>
-                    <tr class="user-row <?= $isSuspended ? 'suspended' : '' ?>"
-                        data-status="<?= $isSuspended ? 'suspended' : 'active' ?>"
-                        data-search="<?= strtolower(htmlspecialchars($u['email'] . ' ' . ($u['username'] ?? ''))) ?>">
-
-                        <td>
-                            <div class="user-cell">
-                                <div class="user-avatar" style="background:<?= $color ?>;"><?= $initials ?></div>
-                                <div>
-                                    <div class="user-name"><?= htmlspecialchars($u['username'] ?? 'Unknown') ?></div>
-                                    <div class="user-email"><?= htmlspecialchars($u['email']) ?></div>
+            <!-- Desktop Table -->
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Username</th>
+                            <th>Joined</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Active</th>
+                            <th style="text-align:right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-tbody">
+                        <?php foreach ($users as $u):
+                            $isSuspended = ($u['is_suspended'] === 't' || $u['is_suspended'] === true);
+                            $isActive    = !$isSuspended;
+                            $name        = $u['username'] ?? $u['email'];
+                            $color       = avatarColor($u['email'], $avatarColors);
+                            $initials    = initials($name);
+                            $role        = $u['role'] ?? 'user';
+                            $joined      = isset($u['created_at']) ? date('M d, Y', strtotime($u['created_at'])) : '—';
+                        ?>
+                        <tr class="user-row <?= $isSuspended ? 'suspended' : '' ?>"
+                            data-status="<?= $isSuspended ? 'suspended' : 'active' ?>"
+                            data-search="<?= strtolower(htmlspecialchars($u['email'] . ' ' . ($u['username'] ?? ''))) ?>"
+                            data-id="<?= $u['id'] ?>">
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-avatar" style="background:<?= $color ?>;"><?= $initials ?></div>
+                                    <div>
+                                        <div class="user-name"><?= htmlspecialchars($u['username'] ?? 'Unknown') ?></div>
+                                        <div class="user-email"><?= htmlspecialchars($u['email']) ?></div>
+                                    </div>
                                 </div>
+                            </td>
+                            <td class="mono-cell">@<?= htmlspecialchars($u['username'] ?? '—') ?></td>
+                            <td class="mono-cell"><?= $joined ?></td>
+                            <td>
+                                <span class="badge" style="<?= $role === 'admin' ? 'background:var(--amber-s);color:var(--amber);' : 'background:var(--border-s);color:var(--muted);' ?>">
+                                    <?= ucfirst($role) ?>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge <?= $isActive ? 'badge-active' : 'badge-suspended' ?>">
+                                    <span class="badge-dot"></span>
+                                    <?= $isActive ? 'Active' : 'Suspended' ?>
+                                </span>
+                            </td>
+                            <td>
+                                <label class="toggle" title="<?= $isActive ? 'Suspend user' : 'Reactivate user' ?>">
+                                    <input type="checkbox" <?= $isActive ? 'checked' : '' ?>
+                                           onchange="toggleSuspension(<?= $u['id'] ?>, this)">
+                                    <div class="toggle-track"></div>
+                                    <div class="toggle-thumb"></div>
+                                </label>
+                            </td>
+                            <td>
+                                <div class="action-cell">
+                                    <button class="icon-btn" onclick="viewUser(<?= $u['id'] ?>)" title="View">
+                                        <i data-lucide="eye" style="width:13px;"></i>
+                                    </button>
+                                    <button class="icon-btn danger" onclick="confirmDelete(<?= $u['id'] ?>, '<?= addslashes($u['username'] ?? $u['email']) ?>')" title="Delete">
+                                        <i data-lucide="trash-2" style="width:13px;"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile Cards -->
+            <div class="mobile-user-list" id="mobile-user-list">
+                <?php foreach ($users as $u):
+                    $isSuspended = ($u['is_suspended'] === 't' || $u['is_suspended'] === true);
+                    $isActive    = !$isSuspended;
+                    $name        = $u['username'] ?? $u['email'];
+                    $color       = avatarColor($u['email'], $avatarColors);
+                    $initials    = initials($name);
+                    $role        = $u['role'] ?? 'user';
+                    $joined      = isset($u['created_at']) ? date('M d, Y', strtotime($u['created_at'])) : '—';
+                ?>
+                <div class="mobile-user-card"
+                     data-status="<?= $isSuspended ? 'suspended' : 'active' ?>"
+                     data-search="<?= strtolower(htmlspecialchars($u['email'] . ' ' . ($u['username'] ?? ''))) ?>"
+                     data-id="<?= $u['id'] ?>"
+                     style="<?= $isSuspended ? 'opacity:0.65;' : '' ?>">
+                    <div class="mobile-card-top">
+                        <div class="mobile-card-left">
+                            <div class="user-avatar" style="background:<?= $color ?>;width:38px;height:38px;font-size:0.82rem;"><?= $initials ?></div>
+                            <div>
+                                <div class="user-name"><?= htmlspecialchars($u['username'] ?? 'Unknown') ?></div>
+                                <div class="user-email"><?= htmlspecialchars($u['email']) ?></div>
                             </div>
-                        </td>
-
-                        <td class="mono-cell">@<?= htmlspecialchars($u['username'] ?? '—') ?></td>
-
-                        <td class="mono-cell"><?= $joined ?></td>
-
-                        <td>
-                            <span class="badge" style="<?= $role === 'admin' ? 'background:var(--amber-s);color:var(--amber);' : 'background:var(--border-s);color:var(--muted);' ?>">
-                                <?= ucfirst($role) ?>
-                            </span>
-                        </td>
-
-                        <td>
-                            <span class="badge <?= $isActive ? 'badge-active' : 'badge-suspended' ?>">
-                                <span class="badge-dot"></span>
-                                <?= $isActive ? 'Active' : 'Suspended' ?>
-                            </span>
-                        </td>
-
-                        <td>
-                            <label class="toggle" title="<?= $isActive ? 'Suspend user' : 'Reactivate user' ?>">
-                                <input type="checkbox"
-                                       <?= $isActive ? 'checked' : '' ?>
-                                       onchange="toggleSuspension(<?= $u['id'] ?>, this)">
-                                <div class="toggle-track"></div>
-                                <div class="toggle-thumb"></div>
-                            </label>
-                        </td>
-
-                        <td>
-                            <div class="action-cell">
-                                <button class="icon-btn" onclick="viewUser(<?= $u['id'] ?>)" title="View details">
-                                    <i data-lucide="eye" style="width:13px;"></i>
-                                </button>
-                                <button class="icon-btn danger" onclick="confirmDelete(<?= $u['id'] ?>, '<?= addslashes($u['username'] ?? $u['email']) ?>')" title="Delete user">
-                                    <i data-lucide="trash-2" style="width:13px;"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" <?= $isActive ? 'checked' : '' ?>
+                                   onchange="toggleSuspension(<?= $u['id'] ?>, this)">
+                            <div class="toggle-track"></div>
+                            <div class="toggle-thumb"></div>
+                        </label>
+                    </div>
+                    <div class="mobile-card-meta">
+                        <span class="badge <?= $isActive ? 'badge-active' : 'badge-suspended' ?>">
+                            <span class="badge-dot"></span><?= $isActive ? 'Active' : 'Suspended' ?>
+                        </span>
+                        <span class="badge" style="<?= $role === 'admin' ? 'background:var(--amber-s);color:var(--amber);' : 'background:var(--border-s);color:var(--muted);' ?>">
+                            <?= ucfirst($role) ?>
+                        </span>
+                        <span style="font-size:0.72rem;color:var(--faint);font-family:var(--mono);"><?= $joined ?></span>
+                    </div>
+                    <div class="mobile-card-actions">
+                        <button class="icon-btn" onclick="viewUser(<?= $u['id'] ?>)" style="flex:1;justify-content:center;">
+                            <i data-lucide="eye" style="width:13px;"></i> View
+                        </button>
+                        <button class="icon-btn danger" onclick="confirmDelete(<?= $u['id'] ?>, '<?= addslashes($u['username'] ?? $u['email']) ?>')" style="flex:1;justify-content:center;">
+                            <i data-lucide="trash-2" style="width:13px;"></i> Delete
+                        </button>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
 
             <?php if (empty($users)): ?>
             <div class="empty-state">
-                <i data-lucide="users" style="width:40px;height:40px;color:var(--border);"></i>
+                <i data-lucide="users" style="width:36px;height:36px;color:var(--border);"></i>
                 <p>No users found.</p>
             </div>
             <?php endif; ?>
@@ -801,6 +857,18 @@ function initials($name) {
 <script>
 lucide.createIcons();
 
+/* ── SIDEBAR (mobile) ── */
+function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('sidebar-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
 /* ── TOAST ── */
 function showToast(msg, type = 'info') {
     const t = document.getElementById('toast');
@@ -812,60 +880,64 @@ function showToast(msg, type = 'info') {
 
 /* ── TOGGLE SUSPENSION ── */
 function toggleSuspension(userId, checkbox) {
-    const row    = checkbox.closest('tr');
-    const toggle = checkbox.closest('.toggle');
-    const isNowActive = checkbox.checked; // checked = active (not suspended)
-
-    toggle.classList.add('loading');
+    const isNowActive = checkbox.checked;
+    // Find all toggles for this user (desktop + mobile)
+    const allToggles = document.querySelectorAll(`[data-id="${userId}"] .toggle, tr[data-id="${userId}"] .toggle`);
+    allToggles.forEach(t => t.classList.add('loading'));
     checkbox.disabled = true;
 
     fetch('index.php?action=toggle-suspension&id=' + userId)
         .then(r => r.json())
         .then(data => {
-            toggle.classList.remove('loading');
+            allToggles.forEach(t => t.classList.remove('loading'));
             checkbox.disabled = false;
 
             if (data.success) {
-                // Update row class
-                row.classList.toggle('suspended', !isNowActive);
-                row.dataset.status = isNowActive ? 'active' : 'suspended';
-
-                // Update badge
-                const badge = row.querySelector('.badge.badge-active, .badge.badge-suspended');
-                if (badge) {
-                    badge.className = 'badge ' + (isNowActive ? 'badge-active' : 'badge-suspended');
-                    badge.innerHTML = `<span class="badge-dot"></span>${isNowActive ? 'Active' : 'Suspended'}`;
+                // Update desktop row
+                const row = document.querySelector(`#user-tbody tr[data-id="${userId}"]`);
+                if (row) {
+                    row.classList.toggle('suspended', !isNowActive);
+                    row.dataset.status = isNowActive ? 'active' : 'suspended';
+                    const badge = row.querySelector('.badge.badge-active, .badge.badge-suspended');
+                    if (badge) {
+                        badge.className = 'badge ' + (isNowActive ? 'badge-active' : 'badge-suspended');
+                        badge.innerHTML = `<span class="badge-dot"></span>${isNowActive ? 'Active' : 'Suspended'}`;
+                    }
+                }
+                // Update mobile card
+                const card = document.querySelector(`#mobile-user-list [data-id="${userId}"]`);
+                if (card) {
+                    card.style.opacity = isNowActive ? '' : '0.65';
+                    card.dataset.status = isNowActive ? 'active' : 'suspended';
+                    const badge = card.querySelector('.badge.badge-active, .badge.badge-suspended');
+                    if (badge) {
+                        badge.className = 'badge ' + (isNowActive ? 'badge-active' : 'badge-suspended');
+                        badge.innerHTML = `<span class="badge-dot"></span>${isNowActive ? 'Active' : 'Suspended'}`;
+                    }
                 }
 
-                showToast(
-                    isNowActive ? '✓ User reactivated' : '⊘ User suspended',
-                    isNowActive ? 'success' : 'info'
-                );
-
+                showToast(isNowActive ? '✓ User reactivated' : '⊘ User suspended', isNowActive ? 'success' : 'info');
                 updateStats();
             } else {
-                // Revert toggle
                 checkbox.checked = !isNowActive;
                 showToast('Failed: ' + (data.message || 'Unknown error'), 'error');
             }
         })
         .catch(() => {
-            toggle.classList.remove('loading');
+            allToggles.forEach(t => t.classList.remove('loading'));
             checkbox.checked = !isNowActive;
             checkbox.disabled = false;
             showToast('Request failed.', 'error');
         });
 }
 
-/* ── UPDATE STAT CARDS LIVE ── */
+/* ── STATS ── */
 function updateStats() {
-    const rows       = document.querySelectorAll('#user-tbody .user-row');
-    const total      = rows.length;
-    const suspended  = [...rows].filter(r => r.dataset.status === 'suspended').length;
-    const active     = total - suspended;
-
-    // Update the stat card values (by order: total, active, suspended, admins)
-    const vals = document.querySelectorAll('.stat-value');
+    const rows      = document.querySelectorAll('#user-tbody .user-row');
+    const total     = rows.length;
+    const suspended = [...rows].filter(r => r.dataset.status === 'suspended').length;
+    const active    = total - suspended;
+    const vals      = document.querySelectorAll('.stat-value');
     if (vals[0]) vals[0].textContent = total;
     if (vals[1]) vals[1].textContent = active;
     if (vals[2]) vals[2].textContent = suspended;
@@ -875,41 +947,54 @@ function updateStats() {
 function filterTable(q) {
     q = q.toLowerCase().trim();
     let visible = 0;
+
+    // Sync both search inputs
+    document.getElementById('user-search-desktop').value = q;
+    document.getElementById('user-search-mobile').value  = q;
+
+    // Desktop rows
     document.querySelectorAll('#user-tbody .user-row').forEach(row => {
         const match = !q || row.dataset.search.includes(q);
         row.style.display = match ? '' : 'none';
         if (match) visible++;
     });
+    // Mobile cards
+    document.querySelectorAll('#mobile-user-list .mobile-user-card').forEach(card => {
+        const match = !q || card.dataset.search.includes(q);
+        card.style.display = match ? '' : 'none';
+    });
+
     document.getElementById('record-count').textContent = visible + ' records';
 }
 
 /* ── FILTER PILLS ── */
-let currentFilter = 'all';
 function setFilter(filter, btn) {
-    currentFilter = filter;
     document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
 
     let visible = 0;
+    // Desktop
     document.querySelectorAll('#user-tbody .user-row').forEach(row => {
         const show = filter === 'all' || row.dataset.status === filter;
         row.style.display = show ? '' : 'none';
         if (show) visible++;
     });
+    // Mobile
+    document.querySelectorAll('#mobile-user-list .mobile-user-card').forEach(card => {
+        card.style.display = (filter === 'all' || card.dataset.status === filter) ? '' : 'none';
+    });
+
     document.getElementById('record-count').textContent = visible + ' records';
 }
 
-/* ── VIEW USER ── */
-function viewUser(userId) {
-    window.location.href = 'index.php?action=view-user&id=' + userId;
-}
+/* ── VIEW / DELETE ── */
+function viewUser(userId) { window.location.href = 'index.php?action=view-user&id=' + userId; }
 
-/* ── DELETE USER ── */
 let _deleteUserId = null;
 function confirmDelete(userId, name) {
     _deleteUserId = userId;
     document.getElementById('confirm-title').textContent = 'Delete User';
-    document.getElementById('confirm-body').textContent  = `Are you sure you want to permanently delete "${name}"? This cannot be undone.`;
+    document.getElementById('confirm-body').textContent  = `Permanently delete "${name}"? This cannot be undone.`;
     document.getElementById('confirm-modal').classList.add('open');
 }
 function closeConfirm() {
@@ -923,15 +1008,12 @@ document.getElementById('confirm-ok').onclick = () => {
         .then(data => {
             closeConfirm();
             if (data.success) {
-                const row = document.querySelector(`tr[data-search]`); // fallback
-                // Remove row by user id attribute
-                document.querySelectorAll('#user-tbody .user-row').forEach(r => {
-                    if (r.querySelector(`button[onclick*="${_deleteUserId}"]`)) {
-                        r.style.transition = 'opacity 0.3s';
-                        r.style.opacity = '0';
-                        setTimeout(() => { r.remove(); updateStats(); }, 300);
-                    }
-                });
+                // Remove desktop row
+                const row = document.querySelector(`#user-tbody tr[data-id="${_deleteUserId}"]`);
+                if (row) { row.style.opacity = '0'; row.style.transition = 'opacity 0.3s'; setTimeout(() => { row.remove(); updateStats(); }, 300); }
+                // Remove mobile card
+                const card = document.querySelector(`#mobile-user-list [data-id="${_deleteUserId}"]`);
+                if (card) { card.style.opacity = '0'; card.style.transition = 'opacity 0.3s'; setTimeout(() => card.remove(), 300); }
                 showToast('User deleted.', 'info');
             } else {
                 showToast(data.message || 'Delete failed.', 'error');
@@ -939,7 +1021,7 @@ document.getElementById('confirm-ok').onclick = () => {
         });
 };
 
-window.addEventListener('keydown', e => { if (e.key === 'Escape') closeConfirm(); });
+window.addEventListener('keydown', e => { if (e.key === 'Escape') { closeConfirm(); closeSidebar(); } });
 </script>
 </body>
 </html>

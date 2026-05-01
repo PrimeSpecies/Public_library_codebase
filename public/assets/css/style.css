@@ -164,3 +164,86 @@ body {
     color: white;
     padding: 100px 0;
 }
+
+/* --- RESPONSIVE ADJUSTMENTS --- */
+
+/* 1. Fix Hero Typography & Spacing */
+@media (max-width: 992px) {
+    .hero-title {
+        font-size: clamp(2.5rem, 10vw, 4rem);
+        letter-spacing: -1px;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.4rem;
+    }
+}
+
+/* 2. Tablet & Mobile Layout Changes */
+@media (max-width: 768px) {
+    /* Make Navbar relative so it doesn't overlap hero content on small screens */
+    .navbar {
+        position: relative;
+        padding: 15px 0;
+    }
+
+    .nav-content {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .hero {
+        padding: 60px 0;
+    }
+
+    /* Stack the stats grid vertically */
+    .stats-grid {
+        flex-direction: column;
+        gap: 30px;
+        align-items: center;
+    }
+
+    /* Adjust the search bar for mobile */
+    .search-container input {
+        padding: 15px 20px 15px 50px;
+        font-size: 1rem;
+    }
+
+    /* Convert Search Button from Absolute to Block if it gets too cramped */
+    .search-container button {
+        position: static;
+        transform: none;
+        width: 100%;
+        margin-top: 10px;
+        justify-content: center;
+    }
+}
+
+/* 3. Handle Feature Cards */
+@media (max-width: 480px) {
+    .features-grid {
+        grid-template-columns: 1fr; /* Force single column */
+    }
+
+    .card {
+        padding: 25px;
+    }
+
+    .cta-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 0 20px;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* 4. Utility: Prevent horizontal scroll */
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+}
