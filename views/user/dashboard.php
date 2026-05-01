@@ -816,11 +816,10 @@ async function openPreview(id, title) {
     document.getElementById('preview-modal').style.display = 'block';
     document.body.style.overflow = 'hidden';
 
-    const container  = document.getElementById('pdf-container');
-    const loading    = document.getElementById('pdf-loading');
-    const errorEl    = document.getElementById('pdf-error');
+    const container = document.getElementById('pdf-container');
+    const loading   = document.getElementById('pdf-loading');
+    const errorEl   = document.getElementById('pdf-error');
 
-    // Clear previous render
     container.querySelectorAll('canvas').forEach(c => c.remove());
     loading.style.display = 'block';
     errorEl.style.display = 'none';
@@ -830,16 +829,22 @@ async function openPreview(id, title) {
         _pdfDoc = await pdfjsLib.getDocument(url).promise;
         loading.style.display = 'none';
 
-        // Render all pages
+        const dpr = window.devicePixelRatio || 1;
+
         for (let pageNum = 1; pageNum <= _pdfDoc.numPages; pageNum++) {
-            const page    = await _pdfDoc.getPage(pageNum);
-            const scale   = Math.min(container.clientWidth / page.getViewport({ scale: 1 }).width, 1.5);
+            const page     = await _pdfDoc.getPage(pageNum);
+            const baseScale = Math.min(container.clientWidth / page.getViewport({ scale: 1 }).width, 1.5);
+            const scale    = baseScale * dpr; // scale up for device pixel ratio
             const viewport = page.getViewport({ scale });
 
-            const canvas  = document.createElement('canvas');
-            canvas.width  = viewport.width;
-            canvas.height = viewport.height;
-            canvas.style.cssText = 'max-width:100%;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
+            const canvas   = document.createElement('canvas');
+            canvas.width   = viewport.width;
+            canvas.height  = viewport.height;
+
+            // Display size stays the same — only the internal resolution scales up
+            canvas.style.width  = (viewport.width / dpr) + 'px';
+            canvas.style.height = (viewport.height / dpr) + 'px';
+            canvas.style.cssText += ';max-width:100%;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:block;';
 
             await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
             container.appendChild(canvas);
@@ -850,6 +855,7 @@ async function openPreview(id, title) {
         console.error('PDF load error:', err);
     }
 }
+
 function closePreview() {
     document.getElementById('preview-modal').style.display = 'none';
     document.getElementById('pdf-container').querySelectorAll('canvas').forEach(c => c.remove());
