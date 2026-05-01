@@ -4,9 +4,182 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ResearchHub | Discover & Share</title>
-    <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #007bff;
+            --black: #000000;
+            --gray-bg: #f8f9fa;
+            --text-muted: #6c757d;
+        }
+
+        /* --- Base Reset --- */
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            color: var(--black);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .text-center { text-align: center; }
+
+        /* --- Navbar --- */
+        .navbar {
+            padding: 20px 0;
+            background: transparent;
+            position: absolute;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -1px; }
+
+        .nav-auth .btn-link {
+            text-decoration: none;
+            color: var(--black);
+            margin-right: 20px;
+            font-weight: 600;
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            background: linear-gradient(135deg, rgba(0,123,255,0.1), transparent);
+            padding: 160px 0 80px;
+        }
+
+        .badge {
+            background: black;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .hero-title { 
+            font-size: clamp(2.5rem, 8vw, 4rem); 
+            margin: 20px 0; 
+            letter-spacing: -2px; 
+            line-height: 1.1;
+        }
+
+        .hero-subtitle { font-size: clamp(1.2rem, 3vw, 1.8rem); margin-bottom: 10px; }
+
+        .hero-text { color: var(--text-muted); max-width: 600px; margin: 0 auto 40px; }
+
+        /* --- Buttons --- */
+        .btn {
+            padding: 12px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-black { background: black; color: white; }
+        .btn-black:hover { opacity: 0.8; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { border: 1px solid white; color: white; }
+
+        /* --- Features --- */
+        .features {
+            background: #000;
+            color: white;
+            padding: 80px 0;
+        }
+
+        .section-title { margin-bottom: 50px; font-size: 2rem; font-weight: 800; }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: left;
+        }
+
+        .icon-box {
+            background: var(--primary);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* --- Stats --- */
+        .stats-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 20px;
+            margin-top: 50px;
+        }
+
+        .stat-item h3 { font-size: 2.2rem; margin: 0; }
+        .stat-item p { color: var(--text-muted); margin: 0; }
+
+        /* --- CTA --- */
+        .cta {
+            background: linear-gradient(to right, #000, #1a1a1a);
+            color: white;
+            padding: 100px 0;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        /* --- RESPONSIVE MEDIA QUERIES --- */
+
+        @media (max-width: 768px) {
+            .navbar { position: relative; padding: 15px 0; }
+            .nav-content { flex-direction: column; gap: 15px; }
+            .hero { padding: 60px 0; }
+            .stats-grid { flex-direction: column; align-items: center; }
+            .cta-buttons { flex-direction: column; align-items: center; width: 100%; }
+            .btn { width: 100%; max-width: 300px; }
+            .card { padding: 25px; }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title { font-size: 2.5rem; }
+            .section-title { font-size: 1.5rem; }
+        }
+    </style>
 </head>
 <body>
 
@@ -27,12 +200,6 @@
             <p class="hero-subtitle">Discover, Share, and Accelerate Research Worldwide</p>
             <p class="hero-text">Join thousands of researchers accessing millions of academic papers, theses, and documents.</p>
 
-            <!-- <form action="index.php?action=search" method="POST" class="search-container">
-                <i data-lucide="search" class="search-icon"></i>
-                <input type="text" name="query" placeholder="Search by title, author, keywords..." required>
-                <button type="submit" class="btn btn-black">Search</button>
-            </form> -->
-
             <div class="stats-grid">
                 <div class="stat-item"><h3>2.5M+</h3><p>Research Papers</p></div>
                 <div class="stat-item"><h3>50K+</h3><p>Active Researchers</p></div>
@@ -43,7 +210,7 @@
     </section>
 
     <section class="features">
-        <div class="container">
+        <div class="container text-center">
             <h2 class="section-title">Everything you need to advance research</h2>
             <div class="features-grid">
                 <div class="card">
@@ -70,13 +237,12 @@
             <h2>Ready to accelerate your research?</h2>
             <div class="cta-buttons">
                 <a href="index.php?action=register" class="btn btn-primary">Upload Your Research <i data-lucide="arrow-right"></i></a>
-                <a href="#top" class="btn btn-outline">Start Searching <i data-lucide="search"></i></a>
+                <a href="index.php?action=login" class="btn btn-outline">Start Browsing <i data-lucide="search"></i></a>
             </div>
         </div>
     </section>
 
     <script>
-        // Initialize the icons
         lucide.createIcons();
     </script>
 </body>
