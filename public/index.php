@@ -1,29 +1,28 @@
 <?php
 
-// 1. These must come FIRST
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 
-// 2. Then the physical links to the files
 require_once __DIR__ . '/../libs/phpmailer/Exception.php';
 require_once __DIR__ . '/../libs/phpmailer/PHPMailer.php';
 require_once __DIR__ . '/../libs/phpmailer/SMTP.php';
-require_once __DIR__ . '/../lang/lang.php';
-$translations = loadLanguage();
 
-
-// 1. Session Setup
+// 1. Session Setup — MUST come before loadLanguage()
 $sessionPath = __DIR__ . '/../sessions';
 if (!is_dir($sessionPath)) { mkdir($sessionPath, 0777, true); }
 session_save_path($sessionPath);
 session_start();
 
-// 2. Error Reporting
+// 2. Now load language — session is available
+require_once __DIR__ . '/../lang/lang.php';
+$translations = loadLanguage();
+
+// 3. Error Reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// 3. Autoload
+// 4. Autoload
 require_once '../autoload.php';
 
 $catalogModel = new Catalog();
