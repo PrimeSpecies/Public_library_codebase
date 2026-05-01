@@ -70,35 +70,26 @@ class DocumentController {
 }
 
 
-    public function viewDoc() {
-        $fileId = $_GET['id'] ?? null;
-        $userId = $_SESSION['user_id'] ?? null;
+public function viewDoc() {
+    $fileId = $_GET['id'] ?? null;
+    $userId = $_SESSION['user_id'] ?? null;
 
-        if (!$fileId || !$userId) die("Unauthorized");
+    if (!$fileId || !$userId) die("Unauthorized");
 
-        $doc = $this->documentModel->findById($fileId);
-        $inCatalog = $this->catalogModel->exists($userId, $fileId);
+    $doc       = $this->documentModel->findById($fileId);
+    $inCatalog = $this->catalogModel->exists($userId, $fileId);
 
-// DEBUG: Force output to screen
-    echo "DEBUG: File Found: " . ($doc ? "Yes" : "No") . "<br>";
-    echo "DEBUG: In Catalog: " . ($inCatalog ? "Yes" : "No") . "<br>";
-    echo "DEBUG: Is Public: " . ($doc['is_public'] ?? 'N/A') . "<br>";
-
-    // Check DB manually one last time
-    if (!$inCatalog) {
-        die("STOPPED: System claims you don't own this in the catalog. Check DB table 'catalog'.");
-    }
-        if ($doc && ($doc['is_public'] || $inCatalog)) {
-            $path = $doc['file_path'];
-            if (file_exists($path)) {
-                header('Content-Type: application/pdf');
-                header('Content-Disposition: inline; filename="' . basename($path) . '"');
-                readfile($path);
-                exit;
-            }
+    if ($doc && ($doc['is_public'] || $inCatalog)) {
+        $path = $doc['file_path'];
+        if (file_exists($path)) {
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: inline; filename="' . basename($path) . '"');
+            readfile($path);
+            exit;
         }
-        die("Access Denied");
     }
+    die("Access Denied");
+}
 
 
 
