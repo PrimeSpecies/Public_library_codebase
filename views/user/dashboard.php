@@ -6,6 +6,10 @@
     <title>My Library | ResearchHub</title>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+</script>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
 
@@ -393,6 +397,7 @@ $currentFolderId = $_GET['folder_id'] ?? null;
 <div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
 <!-- Preview Modal -->
+<!-- Preview Modal -->
 <div id="preview-modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -406,7 +411,15 @@ $currentFolderId = $_GET['folder_id'] ?? null;
                 ✕ <?= __('preview.close') ?>
             </button>
         </div>
-        <iframe id="preview-frame" style="flex-grow:1;border:none;" src=""></iframe>
+        <!-- PDF.js viewer container -->
+        <div id="pdf-container" style="flex-grow:1;overflow-y:auto;background:#525659;padding:16px;display:flex;flex-direction:column;align-items:center;gap:12px;">
+            <div id="pdf-loading" style="color:white;font-family:var(--sans);margin-top:40px;display:none;">
+                Loading document…
+            </div>
+            <div id="pdf-error" style="color:#fca5a5;font-family:var(--sans);margin-top:40px;display:none;">
+                Failed to load document.
+            </div>
+        </div>
     </div>
 </div>
 
@@ -796,16 +809,52 @@ function showToast(msg, type = 'success') {
 })();
 
 /* ── PREVIEW ── */
-function openPreview(id, title) {
+let _pdfDoc = null;
+
+async function openPreview(id, title) {
     document.getElementById('modal-title').innerText = title;
-    document.getElementById('preview-frame').src = 'index.php?action=view-doc&id=' + id;
     document.getElementById('preview-modal').style.display = 'block';
     document.body.style.overflow = 'hidden';
+
+    const container  = document.getElementById('pdf-container');
+    const loading    = document.getElementById('pdf-loading');
+    const errorEl    = document.getElementById('pdf-error');
+
+    // Clear previous render
+    container.querySelectorAll('canvas').forEach(c => c.remove());
+    loading.style.display = 'block';
+    errorEl.style.display = 'none';
+
+    try {
+        const url = 'index.php?action=view-doc&id=' + id;
+        _pdfDoc = await pdfjsLib.getDocument(url).promise;
+        loading.style.display = 'none';
+
+        // Render all pages
+        for (let pageNum = 1; pageNum <= _pdfDoc.numPages; pageNum++) {
+            const page    = await _pdfDoc.getPage(pageNum);
+            const scale   = Math.min(container.clientWidth / page.getViewport({ scale: 1 }).width, 1.5);
+            const viewport = page.getViewport({ scale });
+
+            const canvas  = document.createElement('canvas');
+            canvas.width  = viewport.width;
+            canvas.height = viewport.height;
+            canvas.style.cssText = 'max-width:100%;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
+
+            await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+            container.appendChild(canvas);
+        }
+    } catch (err) {
+        loading.style.display = 'none';
+        errorEl.style.display = 'block';
+        console.error('PDF load error:', err);
+    }
 }
 function closePreview() {
     document.getElementById('preview-modal').style.display = 'none';
-    document.getElementById('preview-frame').src = '';
+    document.getElementById('pdf-container').querySelectorAll('canvas').forEach(c => c.remove());
     document.body.style.overflow = 'auto';
+    _pdfDoc = null;
 }
 window.addEventListener('keydown', e => { if (e.key === 'Escape') { closePreview(); closeAdvSearch(); closeSidebar(); } });
 
