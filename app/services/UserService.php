@@ -237,35 +237,14 @@ public function verifyCredentials($email, $password) {
 
     // Inside your UserService class
 private function mailUser($to, $subject, $otpCode) {
-    $mail = new PHPMailer(true);
+    $apiKey = getenv('BREVO_API_KEY');
+    $from   = getenv('MAIL_FROM');
 
-    try {
-        $mail->isSMTP();
-        $mail->Host       = getenv('MAIL_HOST') ?: 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = getenv('MAIL_USERNAME');
-        $mail->Password   = getenv('MAIL_PASSWORD');
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
-
-        // Remove the SMTPOptions block entirely on Render
-        // It was only needed for localhost/XAMPP self-signed certs
-        if (getenv('APP_ENV') === 'local') {
-            $mail->SMTPOptions = [
-                'ssl' => [
-                    'verify_peer'       => false,
-                    'verify_peer_name'  => false,
-                    'allow_self_signed' => true
-                ]
-            ];
-        }
-
-        $mail->setFrom(getenv('MAIL_USERNAME'), 'Digital Library Project');
-        $mail->addAddress($to);
-
-        $mail->isHTML(true);
-        $mail->Subject = $subject;
-        $mail->Body    = "
+    $payload = json_encode([
+        'sender'     => ['name' => 'Digital Library', 'email' => $from],
+        'to'         => [['email' => $to]],
+        'subject'    => $subject,
+        'htmlContent' => "
             <div style='font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee;'>
                 <h2 style='color: #2c3e50;'>Verification Code</h2>
                 <p>Use the code below to verify your library account:</p>
@@ -273,16 +252,32 @@ private function mailUser($to, $subject, $otpCode) {
                     $otpCode
                 </div>
                 <p>This code expires in 15 minutes.</p>
-            </div>";
+            </div>"
+    ]);
 
-        $mail->send();
+    $ch = curl_init('https://api.brevo.com/v3/smtp/email');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => $payload,
+        CURLOPT_HTTPHEADER     => [
+            'accept: application/json',
+            'api-key: ' . $apiKey,
+            'content-type: application/json'
+        ]
+    ]);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode === 201) {
         return true;
-    } catch (Exception $e) {
-        error_log("Mail Error: {$mail->ErrorInfo}");
-        return false;
     }
-}
 
+    error_log("Brevo API Error: " . $response);
+    return false;
+}
     public function verifyEmailOTP($email, $inputCode, $type) {
         $record = $this->db->query(
             "SELECT * FROM user_otps 
