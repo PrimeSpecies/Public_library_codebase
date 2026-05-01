@@ -83,6 +83,16 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
     $docController = new \App\Controllers\DocumentController();
     $docController->viewDoc();
 
+}elseif ($action === 'check-doc'){
+    $fileId = $_GET['id'] ?? null;
+    $doc = (new Document())->findById($fileId);
+    $path = $doc['file_path'];
+    echo "Path: " . $path . "<br>";
+    echo "Exists: " . (file_exists($path) ? 'Yes' : 'No') . "<br>";
+    echo "Size: " . filesize($path) . " bytes<br>";
+    echo "PHP memory limit: " . ini_get('memory_limit') . "<br>";
+    echo "Max execution time: " . ini_get('max_execution_time') . "<br>";
+    exit;
 }elseif ($action === 'verify-reset-otp') {
     // Phase 2: The OTP "Gate"
     $authController->verifyResetOTP();
