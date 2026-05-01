@@ -1,5 +1,17 @@
 <?php
 
+// 1. These must come FIRST
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
+
+// 2. Then the physical links to the files
+require_once __DIR__ . '/../../libs/phpmailer/Exception.php';
+require_once __DIR__ . '/../../libs/phpmailer/PHPMailer.php';
+require_once __DIR__ . '/../../libs/phpmailer/SMTP.php';
+require_once __DIR__ . '/../../database/Database.php';
+
+
 // 1. Session Setup
 $sessionPath = __DIR__ . '/../sessions';
 if (!is_dir($sessionPath)) { mkdir($sessionPath, 0777, true); }
@@ -116,7 +128,29 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
     $authController->verifyResetOTP(); 
     exit();
 
-} elseif ($action === 'reset-password') {
+}elseif ( $action === 'test-mail'){
+    $mail = new PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host       = getenv('MAIL_HOST');
+        $mail->SMTPAuth   = true;
+        $mail->Username   = getenv('MAIL_USERNAME');
+        $mail->Password   = getenv('MAIL_PASSWORD');
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+        $mail->setFrom(getenv('MAIL_USERNAME'), 'Test');
+        $mail->addAddress(getenv('MAIL_USERNAME')); // sends to yourself
+        $mail->Subject = 'Test from Render';
+        $mail->Body    = 'If you see this, mail works.';
+        $mail->send();
+        echo json_encode(['success' => true, 'msg' => 'Mail sent']);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $mail->ErrorInfo]);
+    }
+    exit;
+
+}
+ elseif ($action === 'reset-password') {
     // Phase 3: Update password (if OTP was verified)
     $authController->resetPassword(); 
     exit();
