@@ -37,6 +37,14 @@ $authController = new AuthController();
 if ($action === 'home') {
     include __DIR__ . '/../views/home/landing.php';
 
+} elseif ( $action === 'set-lang'){
+    $allowed = ['en', 'fr'];
+    $lang = $_GET['lang'] ?? 'en';
+    if (in_array($lang, $allowed)) {
+        $_SESSION['lang'] = $lang;
+    }
+    header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? 'index.php'));
+    exit;
 } elseif ($action === 'register') {
     $authController->register();
 
