@@ -467,19 +467,19 @@ $currentFolderId = $_GET['folder_id'] ?? null;
         <span class="nav-user">
             <?= __('nav.logged_in_as') ?>: <strong><?= htmlspecialchars($_SESSION['user_email'] ?? 'User') ?></strong>
         </span>
-        <a href="index.php?action=logout" class="nav-logout"><?= __('nav.logout') ?></a>
-        <div style="display:flex;align-items:center;gap:6px;">
+        <div style="display:flex;align-items:center;gap:4px;">
             <a href="index.php?action=set-lang&lang=en"
-               style="font-size:0.78rem;font-weight:600;padding:4px 10px;border-radius:6px;text-decoration:none;
+               style="font-size:0.75rem;font-weight:600;padding:4px 9px;border-radius:5px;text-decoration:none;
                       <?= ($_SESSION['lang'] ?? 'en') === 'en' ? 'background:var(--accent);color:white;' : 'color:var(--text-muted);' ?>">
                 EN
             </a>
             <a href="index.php?action=set-lang&lang=fr"
-               style="font-size:0.78rem;font-weight:600;padding:4px 10px;border-radius:6px;text-decoration:none;
+               style="font-size:0.75rem;font-weight:600;padding:4px 9px;border-radius:5px;text-decoration:none;
                       <?= ($_SESSION['lang'] ?? 'en') === 'fr' ? 'background:var(--accent);color:white;' : 'color:var(--text-muted);' ?>">
                 FR
             </a>
         </div>
+        <a href="index.php?action=logout" class="nav-logout"><?= __('nav.logout') ?></a>
     </div>
 </nav>
 
