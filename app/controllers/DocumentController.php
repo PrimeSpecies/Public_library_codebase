@@ -82,13 +82,16 @@ public function viewDoc() {
     if ($doc && ($doc['is_public'] || $inCatalog)) {
         $path = $doc['file_path'];
         if (file_exists($path)) {
-            // Clear any buffered output before sending PDF
             if (ob_get_level()) ob_end_clean();
+
+            $size = filesize($path);
 
             header('Content-Type: application/pdf');
             header('Content-Disposition: inline; filename="' . basename($path) . '"');
-            header('Content-Length: ' . filesize($path));
+            header('Content-Length: ' . $size);
+            header('Accept-Ranges: bytes');
             header('Cache-Control: private, max-age=0, must-revalidate');
+            header('Pragma: public');
 
             readfile($path);
             exit;
