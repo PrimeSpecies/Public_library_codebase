@@ -13,18 +13,14 @@ class FileService {
         $this->catalogModel  = new Catalog();
     }
 
-    public function store($file, $userId, $metadata = []) {
-    // 1. Path Management
+ public function store($file, $userId, $metadata = []) {
     $baseDir   = dirname(__DIR__, 2);
     $uploadDir = $baseDir . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR
                . 'uploads' . DIRECTORY_SEPARATOR . 'documents' . DIRECTORY_SEPARATOR
                . $userId . DIRECTORY_SEPARATOR;
 
-    if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0755, true);
-    }
+    if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
-    // 2. Cryptographic Filename
     $extension   = pathinfo($file['name'], PATHINFO_EXTENSION);
     $hashedName  = bin2hex(random_bytes(16)) . '.' . $extension;
     $destination = $uploadDir . $hashedName;
@@ -33,15 +29,22 @@ class FileService {
         return false;
     }
 
-    // 3. Normalize Boolean
     $isPublic = ($metadata['is_public'] === true
               || $metadata['is_public'] === 1
               || $metadata['is_public'] === '1');
 
-    // 4. Save record immediately — no extraction, instant response
+    // Upload to B2
+    $b2Service = new \App\Services\B2Service();
+    $b2Key     = $b2Service->upload($destination, $userId, $hashedName);
+
+    if (!$b2Key) {
+        error_log("B2 upload failed for: " . $destination);
+        // Continue anyway — fall back to local path
+    }
+
     $fileId = $this->documentModel->create([
         'user_id'      => $userId,
-        'file_path'    => $destination,
+        'file_path'    => $b2Key ?: $destination, // store B2 key or local path
         'title'        => $metadata['title'],
         'is_public'    => $isPublic,
         'description'  => $metadata['description'] ?? '',
@@ -50,18 +53,15 @@ class FileService {
         'content_text' => ''
     ]);
 
-    if (!$fileId) {
-        return false;
-    }
+    if (!$fileId) return false;
 
-    // 5. Link to catalog
-    $folderId = !empty($metadata['folder_id']) ? (int)$metadata['folder_id'] : null;
-    $this->catalogModel->addToFileCatalog($userId, $fileId, $folderId, $metadata['title']);
-
-    // 6. Queue text extraction — writes a small job file, processed separately
+    // Queue text extraction from local file
     if (strtolower($extension) === 'pdf') {
         $this->queueExtraction($fileId, $destination);
     }
+
+    $folderId = !empty($metadata['folder_id']) ? (int)$metadata['folder_id'] : null;
+    $this->catalogModel->addToFileCatalog($userId, $fileId, $folderId, $metadata['title']);
 
     return $fileId;
 }

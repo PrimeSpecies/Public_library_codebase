@@ -80,27 +80,33 @@ public function viewDoc() {
     $inCatalog = $this->catalogModel->exists($userId, $fileId);
 
     if ($doc && ($doc['is_public'] || $inCatalog)) {
-        $path = $doc['file_path'];
-        if (file_exists($path)) {
+        $fileKey = $doc['file_path'];
+
+        // If it's a B2 key (not a local path), generate signed URL
+        if (!str_starts_with($fileKey, '/')) {
+            $b2Service = new \App\Services\B2Service();
+            $signedUrl = $b2Service->getSignedUrl($fileKey);
+
+            if ($signedUrl) {
+                header('Location: ' . $signedUrl);
+                exit;
+            }
+        }
+
+        // Fallback to local file
+        if (file_exists($fileKey)) {
             if (ob_get_level()) ob_end_clean();
-
-            $size = filesize($path);
-
             header('Content-Type: application/pdf');
-            header('Content-Disposition: inline; filename="' . basename($path) . '"');
-            header('Content-Length: ' . $size);
+            header('Content-Disposition: inline; filename="' . basename($fileKey) . '"');
+            header('Content-Length: ' . filesize($fileKey));
             header('Accept-Ranges: bytes');
-            header('Cache-Control: private, max-age=0, must-revalidate');
-            header('Pragma: public');
-
-            readfile($path);
+            readfile($fileKey);
             exit;
         }
     }
+
     die("Access Denied");
 }
-
-
 
 // In DocumentController.php
 
