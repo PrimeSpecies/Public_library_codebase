@@ -83,8 +83,14 @@ class B2Service {
         return $this->getNativeSignedUrl($fileKey, $expires);
     }
 
-    private function getNativeSignedUrl($fileKey, $expires) {
-        // Get download authorization from B2
+private function getNativeSignedUrl($fileKey, $expires) {
+    // Use cached auth if still valid (avoid API call every time)
+    if (isset($_SESSION['b2_auth']) && $_SESSION['b2_auth_expires'] > time()) {
+        $apiUrl      = $_SESSION['b2_auth']['apiUrl'];
+        $authToken   = $_SESSION['b2_auth']['authorizationToken'];
+        $downloadUrl = $_SESSION['b2_auth']['downloadUrl'];
+    } else {
+        // Auth API call — only happens once per hour
         $ch = curl_init('https://api.backblazeb2.com/b2api/v2/b2_authorize_account');
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
@@ -100,35 +106,39 @@ class B2Service {
             return false;
         }
 
-        $apiUrl       = $response['apiUrl'];
-        $authToken    = $response['authorizationToken'];
-        $downloadUrl  = $response['downloadUrl'];
+        // Cache in session for 1 hour
+        $_SESSION['b2_auth']         = $response;
+        $_SESSION['b2_auth_expires'] = time() + 3600;
 
-        // Get download authorization token
-        $ch = curl_init($apiUrl . '/b2api/v2/b2_get_download_authorization');
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST           => true,
-            CURLOPT_HTTPHEADER     => [
-                'Authorization: ' . $authToken,
-                'Content-Type: application/json',
-            ],
-            CURLOPT_POSTFIELDS => json_encode([
-                'bucketId'               => $this->bucketId,
-                'fileNamePrefix'         => $fileKey,
-                'validDurationInSeconds' => 3600,
-            ]),
-        ]);
-        $authResponse = json_decode(curl_exec($ch), true);
-        curl_close($ch);
-
-        if (!isset($authResponse['authorizationToken'])) {
-            error_log("B2 Download Auth Error: " . json_encode($authResponse));
-            return false;
-        }
-
-        // Build signed download URL
-        return $downloadUrl . '/file/' . $this->bucketName . '/' . $fileKey
-             . '?Authorization=' . urlencode($authResponse['authorizationToken']);
+        $apiUrl      = $response['apiUrl'];
+        $authToken   = $response['authorizationToken'];
+        $downloadUrl = $response['downloadUrl'];
     }
+
+    // Download auth — still needed per file but much faster now
+    $ch = curl_init($apiUrl . '/b2api/v2/b2_get_download_authorization');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_HTTPHEADER     => [
+            'Authorization: ' . $authToken,
+            'Content-Type: application/json',
+        ],
+        CURLOPT_POSTFIELDS => json_encode([
+            'bucketId'               => $this->bucketId,
+            'fileNamePrefix'         => $fileKey,
+            'validDurationInSeconds' => 3600,
+        ]),
+    ]);
+    $authResponse = json_decode(curl_exec($ch), true);
+    curl_close($ch);
+
+    if (!isset($authResponse['authorizationToken'])) {
+        error_log("B2 Download Auth Error: " . json_encode($authResponse));
+        return false;
+    }
+
+    return $downloadUrl . '/file/' . $this->bucketName . '/' . $fileKey
+         . '?Authorization=' . urlencode($authResponse['authorizationToken']);
+}
 }
