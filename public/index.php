@@ -161,6 +161,27 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
     $authController->resetPassword(); 
     exit();
 
+}elseif ( $action === 'get-doc-url'){
+    header('Content-Type: application/json');
+    $fileId       = $_GET['id'] ?? null;
+    $userId       = $_SESSION['user_id'] ?? null;
+
+    if (!$fileId || !$userId) {
+        echo json_encode(['success' => false]);
+        exit;
+    }
+
+    $docModel     = new Document();
+    $catalogModel = new Catalog();
+    $doc          = $docModel->findById($fileId);
+    $inCatalog    = $catalogModel->exists($userId, $fileId);
+
+    if ($doc && ($doc['is_public'] || $inCatalog)) {
+        echo json_encode(['success' => true, 'url' => $doc['file_path']]);
+    } else {
+        echo json_encode(['success' => false]);
+    }
+    exit;
 }elseif( $action === 'check-pdf-raw'){
     $fileId = $_GET['id'] ?? null;
     $doc = (new Document())->findById($fileId);

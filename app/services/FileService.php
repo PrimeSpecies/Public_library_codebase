@@ -33,25 +33,24 @@ class FileService {
               || $metadata['is_public'] === 1
               || $metadata['is_public'] === '1');
 
-    // Upload to B2
-    $b2Service = new \App\Services\B2Service();
-    $b2Key     = $b2Service->upload($destination, $userId, $hashedName);
+    // Upload to Cloudinary
+$cloudinary = new \App\Services\CloudinaryService();
+$fileUrl    = $cloudinary->upload($destination, $hashedName);
 
-    if (!$b2Key) {
-        error_log("B2 upload failed for: " . $destination);
-        // Continue anyway — fall back to local path
-    }
+if (!$fileUrl) {
+    error_log("Cloudinary upload failed for: " . $destination);
+}
 
-    $fileId = $this->documentModel->create([
-        'user_id'      => $userId,
-        'file_path'    => $b2Key ?: $destination, // store B2 key or local path
-        'title'        => $metadata['title'],
-        'is_public'    => $isPublic,
-        'description'  => $metadata['description'] ?? '',
-        'tags'         => $metadata['tags'] ?? '',
-        'folder_id'    => $metadata['folder_id'] ?? null,
-        'content_text' => ''
-    ]);
+$fileId = $this->documentModel->create([
+    'user_id'      => $userId,
+    'file_path'    => $fileUrl ?: $destination, // store Cloudinary URL or local path
+    'title'        => $metadata['title'],
+    'is_public'    => $isPublic,
+    'description'  => $metadata['description'] ?? '',
+    'tags'         => $metadata['tags'] ?? '',
+    'folder_id'    => $metadata['folder_id'] ?? null,
+    'content_text' => ''
+]);
 
     if (!$fileId) return false;
 
