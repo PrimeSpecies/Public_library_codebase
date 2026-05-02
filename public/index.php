@@ -161,7 +161,14 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
     $authController->resetPassword(); 
     exit();
 
-} elseif ($action === 'verify-email') {
+}elseif( $action === 'check-pdf-raw'){
+    $fileId = $_GET['id'] ?? null;
+    $doc = (new Document())->findById($fileId);
+    $path = $doc['file_path'];
+    echo "First 10 bytes: " . bin2hex(file_get_contents($path, false, null, 0, 10));
+    exit;
+    
+}elseif ($action === 'verify-email') {
     $authController->verifyEmail();
     exit();
 
