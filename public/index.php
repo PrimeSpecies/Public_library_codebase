@@ -155,12 +155,41 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
     header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? 'index.php'));
     exit;
 
-}
- elseif ($action === 'reset-password') {
+}elseif ($action === 'reset-password') {
     // Phase 3: Update password (if OTP was verified)
     $authController->resetPassword(); 
     exit();
 
+}elseif( $action === 'download-doc'){
+    $fileId       = $_GET['id'] ?? null;
+    $userId       = $_SESSION['user_id'] ?? null;
+
+    if (!$fileId || !$userId) die("Unauthorized");
+
+    $docModel     = new Document();
+    $catalogModel = new Catalog();
+    $doc          = $docModel->findById($fileId);
+    $inCatalog    = $catalogModel->exists($userId, $fileId);
+
+    if ($doc && ($doc['is_public'] || $inCatalog)) {
+        $url = $doc['file_path'];
+        // For Cloudinary URLs, redirect with download flag
+        if (str_starts_with($url, 'https://')) {
+            // Add fl_attachment to force download on Cloudinary
+            $downloadUrl = str_replace('/upload/', '/upload/fl_attachment/', $url);
+            header('Location: ' . $downloadUrl);
+            exit;
+        }
+        // Local file fallback
+        if (file_exists($url)) {
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="' . ($doc['title'] ?? 'document') . '.pdf"');
+            header('Content-Length: ' . filesize($url));
+            readfile($url);
+            exit;
+        }
+    }
+    die("Unauthorized");
 }elseif ( $action === 'get-doc-url'){
     header('Content-Type: application/json');
     $fileId       = $_GET['id'] ?? null;

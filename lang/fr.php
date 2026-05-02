@@ -86,6 +86,8 @@ return [
 'search.tags_ph'     => 'ex. ML, Finance',
 'folders.new_root'   => 'Nouveau dossier racine',
 'catalog.save'       => 'Sauvegarder dans le catalogue',
+'preview.download' => 'Télécharger',
+
 
 'landing.nav_login'            => 'Connexion',
 'landing.nav_register'         => 'Créer un compte',

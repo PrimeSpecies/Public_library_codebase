@@ -120,4 +120,6 @@ return [
 'landing.footer_terms'         => 'Terms of Service',
 'landing.footer_cookies'       => 'Cookie Policy',
 'landing.footer_rights'        => 'All rights reserved.',
+'preview.download' => 'Download',
+
 ];

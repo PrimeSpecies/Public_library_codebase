@@ -401,17 +401,21 @@ $currentFolderId = $_GET['folder_id'] ?? null;
 <div id="preview-modal">
     <div class="modal-content">
         <div class="modal-header">
-            <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-                <i data-lucide="file-text" style="color:var(--accent);width:18px;flex-shrink:0;"></i>
-                <span id="modal-title" class="mono" style="font-weight:600;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                    <?= __('preview.title') ?>
-                </span>
-            </div>
-            <button onclick="closePreview()" style="background:var(--red-soft);color:var(--red);border:none;padding:7px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.8rem;font-family:var(--sans);white-space:nowrap;flex-shrink:0;">
-                ✕ <?= __('preview.close') ?>
-            </button>
-        </div>
-        <!-- PDF.js viewer container -->
+    <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+        <i data-lucide="file-text" style="color:var(--accent);width:18px;flex-shrink:0;"></i>
+        <span id="modal-title" class="mono" style="font-weight:600;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            <?= __('preview.title') ?>
+        </span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+        <button id="download-btn" onclick="downloadDoc()" style="background:var(--accent-soft);color:var(--accent);border:none;padding:7px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.8rem;font-family:var(--sans);display:flex;align-items:center;gap:6px;">
+            <i data-lucide="download" style="width:14px;"></i> <?= __('preview.download') ?>
+        </button>
+        <button onclick="closePreview()" style="background:var(--red-soft);color:var(--red);border:none;padding:7px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.8rem;font-family:var(--sans);white-space:nowrap;">
+            ✕ <?= __('preview.close') ?>
+        </button>
+    </div>
+</div><!-- PDF.js viewer container -->
         <div id="pdf-container" style="flex-grow:1;overflow-y:auto;background:#525659;padding:16px;display:flex;flex-direction:column;align-items:center;gap:12px;">
             <div id="pdf-loading" style="color:white;font-family:var(--sans);margin-top:40px;display:none;">
                 Loading document…
@@ -709,13 +713,16 @@ $currentFolderId = $_GET['folder_id'] ?? null;
                                 <?= $item['folder_id'] ? 'FOLDER: ' . $item['folder_id'] : __('folders.root') ?>
                             </td>
                             <td style="text-align:right;white-space:nowrap;">
-                                <button class="tbl-btn" onclick="openPreview('<?= $item['document_id'] ?>', '<?= htmlspecialchars($item['custom_display_name'] ?? $item['title'], ENT_QUOTES) ?>')" title="<?= __('preview.title') ?>">
-                                    <i data-lucide="maximize-2" style="width:15px;color:var(--accent);"></i>
-                                </button>
-                                <button class="tbl-btn danger" onclick="removeFromCatalog(<?= $item['document_id'] ?>, this)" title="<?= __('catalog.remove') ?>">
-                                    <i data-lucide="trash-2" style="width:15px;color:var(--red);"></i>
-                                </button>
-                            </td>
+    <button class="tbl-btn" onclick="openPreview('<?= $item['document_id'] ?>', '<?= htmlspecialchars($item['custom_display_name'] ?? $item['title'], ENT_QUOTES) ?>')" title="<?= __('preview.title') ?>">
+        <i data-lucide="maximize-2" style="width:15px;color:var(--accent);"></i>
+    </button>
+    <a href="index.php?action=download-doc&id=<?= $item['document_id'] ?>" class="tbl-btn" title="<?= __('preview.download') ?>">
+        <i data-lucide="download" style="width:15px;color:var(--green);"></i>
+    </a>
+    <button class="tbl-btn danger" onclick="removeFromCatalog(<?= $item['document_id'] ?>, this)" title="<?= __('catalog.remove') ?>">
+        <i data-lucide="trash-2" style="width:15px;color:var(--red);"></i>
+    </button>
+</td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -776,6 +783,46 @@ function renderFolderTree(array $tree, $currentFolderId): void {
 
 <script>
 lucide.createIcons();
+
+let _currentDocUrl   = null;
+let _currentDocTitle = null;
+
+async function openPreview(id, title) {
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('preview-modal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    document.getElementById('preview-frame').src = '';
+    _currentDocUrl   = null;
+    _currentDocTitle = title;
+
+    try {
+        const res  = await fetch('index.php?action=get-doc-url&id=' + id);
+        const data = await res.json();
+
+        if (data.success && data.url) {
+            _currentDocUrl = data.url;
+            document.getElementById('preview-frame').src = data.url;
+        } else {
+            alert('Could not load document.');
+        }
+    } catch (err) {
+        console.error('Preview error:', err);
+        alert('Failed to load document.');
+    }
+}
+
+function downloadDoc() {
+    if (!_currentDocUrl) return;
+    const a = document.createElement('a');
+    a.href     = _currentDocUrl;
+    a.download = (_currentDocTitle || 'document') + '.pdf';
+    a.target   = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+
 
 /* ── SIDEBAR (mobile) ── */
 function openSidebar() {
