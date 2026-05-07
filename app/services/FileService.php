@@ -37,13 +37,16 @@ class FileService {
 $cloudinary = new \App\Services\CloudinaryService();
 $fileUrl    = $cloudinary->upload($destination, $hashedName);
 
+error_log("Cloudinary URL: " . ($fileUrl ?: 'FAILED'));
+error_log("Destination: " . $destination);
+
 if (!$fileUrl) {
     error_log("Cloudinary upload failed for: " . $destination);
 }
 
 $fileId = $this->documentModel->create([
     'user_id'      => $userId,
-    'file_path'    => $fileUrl ?: $destination, // store Cloudinary URL or local path
+    'file_path'    => $fileUrl ?: $destination,
     'title'        => $metadata['title'],
     'is_public'    => $isPublic,
     'description'  => $metadata['description'] ?? '',
