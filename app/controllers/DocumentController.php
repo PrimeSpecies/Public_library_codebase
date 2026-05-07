@@ -69,7 +69,6 @@ class DocumentController {
     exit;
 }
 
-
 public function viewDoc() {
     $fileId = $_GET['id'] ?? null;
     $userId = $_SESSION['user_id'] ?? null;
@@ -82,13 +81,23 @@ public function viewDoc() {
     if ($doc && ($doc['is_public'] || $inCatalog)) {
         $path = $doc['file_path'];
 
-        // Cloudinary URL — redirect directly
         if (str_starts_with($path, 'https://')) {
-            header('Location: ' . $path);
+            // Generate a signed Cloudinary URL valid for 1 hour
+            $timestamp  = time() + 3600;
+            $publicId   = preg_replace('/^.*\/upload\/v\d+\//', '', $path);
+            $publicId   = preg_replace('/\.[^.]+$/', '', $publicId);
+            $secret     = getenv('CLOUDINARY_SECRET');
+            $signature  = sha1('public_id=' . $publicId . '&timestamp=' . $timestamp . $secret);
+            $signedUrl  = 'https://res.cloudinary.com/' . getenv('CLOUDINARY_CLOUD')
+                        . '/raw/upload?public_id=' . urlencode($publicId)
+                        . '&timestamp=' . $timestamp
+                        . '&signature=' . $signature
+                        . '&api_key=' . getenv('CLOUDINARY_KEY');
+
+            header('Location: ' . $signedUrl);
             exit;
         }
 
-        // Fallback — local file
         if (file_exists($path)) {
             if (ob_get_level()) ob_end_clean();
             header('Content-Type: application/pdf');
@@ -101,7 +110,6 @@ public function viewDoc() {
 
     die("Access Denied");
 }
-
 // In DocumentController.php
 
 public function moveFile() {
