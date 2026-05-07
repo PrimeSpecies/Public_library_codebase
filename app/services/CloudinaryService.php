@@ -12,14 +12,14 @@ class CloudinaryService {
         $this->secret = getenv('CLOUDINARY_SECRET');
     }
 
-    public function upload($localPath, $fileName) {
+public function upload($localPath, $fileName) {
     $timestamp = time();
     $publicId  = 'documents/' . pathinfo($fileName, PATHINFO_FILENAME);
 
-    // Generate signature — must match exactly
     $params = [
-        'public_id' => $publicId,
-        'timestamp' => $timestamp,
+        'access_mode' => 'public',
+        'public_id'   => $publicId,
+        'timestamp'   => $timestamp,
     ];
     ksort($params);
     $sigString = '';
@@ -34,11 +34,12 @@ class CloudinaryService {
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST           => true,
         CURLOPT_POSTFIELDS     => [
-            'file'      => new \CURLFile($localPath, 'application/pdf', $fileName),
-            'public_id' => $publicId,
-            'timestamp' => $timestamp,
-            'api_key'   => $this->key,
-            'signature' => $signature,
+            'file'        => new \CURLFile($localPath, 'application/pdf', $fileName),
+            'public_id'   => $publicId,
+            'access_mode' => 'public',
+            'timestamp'   => $timestamp,
+            'api_key'     => $this->key,
+            'signature'   => $signature,
         ],
     ]);
 
