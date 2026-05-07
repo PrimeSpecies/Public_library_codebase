@@ -80,9 +80,32 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
     $folderController->deleteFolder();
 
 }elseif ($action === 'view-doc') {
-    $docController = new \App\Controllers\DocumentController();
-    $docController->viewDoc();
+    $fileId       = $_GET['id'] ?? null;
+    $userId       = $_SESSION['user_id'] ?? null;
+    $docModel     = new Document();
+    $catalogModel = new Catalog();
+    $doc          = $docModel->findById($fileId);
+    $inCatalog    = $userId ? $catalogModel->exists($userId, $fileId) : false;
 
+    if ($doc && ($doc['is_public'] || $inCatalog)) {
+        $path = $doc['file_path'];
+
+        if (str_starts_with($path, 'https://')) {
+            // Redirect directly to Cloudinary URL
+            header('Location: ' . $path);
+            exit;
+        }
+
+        if (file_exists($path)) {
+            if (ob_get_level()) ob_end_clean();
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: inline; filename="' . basename($path) . '"');
+            header('Content-Length: ' . filesize($path));
+            readfile($path);
+            exit;
+        }
+    }
+    die("Access Denied");
 }elseif ($action === 'check-doc'){
     $fileId = $_GET['id'] ?? null;
     $doc = (new Document())->findById($fileId);
@@ -202,40 +225,22 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
     $authController->resetPassword(); 
     exit();
 
-}elseif( $action === 'download-doc'){
+}elseif($action === "download-doc") {
     $fileId       = $_GET['id'] ?? null;
     $userId       = $_SESSION['user_id'] ?? null;
-
-    if (!$fileId || !$userId) die("Unauthorized");
-
     $docModel     = new Document();
     $catalogModel = new Catalog();
     $doc          = $docModel->findById($fileId);
-    $inCatalog    = $catalogModel->exists($userId, $fileId);
+    $inCatalog    = $userId ? $catalogModel->exists($userId, $fileId) : false;
 
     if ($doc && ($doc['is_public'] || $inCatalog)) {
         $url   = $doc['file_path'];
         $title = $doc['title'] ?? 'document';
 
         if (str_starts_with($url, 'https://')) {
-            $ch = curl_init($url);
-            curl_setopt_array($ch, [
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_SSL_VERIFYPEER => false,
-            ]);
-            $content  = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            if ($httpCode === 200 && $content) {
-                if (ob_get_level()) ob_end_clean();
-                header('Content-Type: application/pdf');
-                header('Content-Disposition: attachment; filename="' . $title . '.pdf"');
-                header('Content-Length: ' . strlen($content));
-                echo $content;
-                exit;
-            }
+            // Redirect directly to Cloudinary URL
+            header('Location: ' . $url);
+            exit;
         }
 
         if (file_exists($url)) {
@@ -248,26 +253,17 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
         }
     }
     die("Unauthorized");
-}elseif ( $action === 'get-doc-url'){
+}elseif($action === 'get-doc-url') {
     header('Content-Type: application/json');
     $fileId       = $_GET['id'] ?? null;
     $userId       = $_SESSION['user_id'] ?? null;
-
-    if (!$fileId || !$userId) {
-        echo json_encode(['success' => false]);
-        exit;
-    }
-
     $docModel     = new Document();
     $catalogModel = new Catalog();
     $doc          = $docModel->findById($fileId);
-    $inCatalog    = $catalogModel->exists($userId, $fileId);
+    $inCatalog    = $userId ? $catalogModel->exists($userId, $fileId) : false;
 
     if ($doc && ($doc['is_public'] || $inCatalog)) {
-        echo json_encode([
-            'success' => true,
-            'url'     => 'index.php?action=view-doc&id=' . $fileId
-        ]);
+        echo json_encode(['success' => true, 'url' => $doc['file_path']]);
     } else {
         echo json_encode(['success' => false]);
     }
