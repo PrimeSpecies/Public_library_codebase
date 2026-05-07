@@ -69,8 +69,7 @@ class DocumentController {
     exit;
 }
 
-public function viewDoc() {
-    $fileId = $_GET['id'] ?? null;
+public function viewDoc() {$fileId = $_GET['id'] ?? null;
     $userId = $_SESSION['user_id'] ?? null;
 
     if (!$fileId || !$userId) die("Unauthorized");
@@ -80,10 +79,28 @@ public function viewDoc() {
 
     if ($doc && ($doc['is_public'] || $inCatalog)) {
         $path = $doc['file_path'];
+
         if (str_starts_with($path, 'https://')) {
-            header('Location: ' . $path);
-            exit;
+            $ch = curl_init($path);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_SSL_VERIFYPEER => false,
+            ]);
+            $content  = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode === 200 && $content) {
+                if (ob_get_level()) ob_end_clean();
+                header('Content-Type: application/pdf');
+                header('Content-Disposition: inline; filename="' . basename($path) . '"');
+                header('Content-Length: ' . strlen($content));
+                echo $content;
+                exit;
+            }
         }
+
         if (file_exists($path)) {
             if (ob_get_level()) ob_end_clean();
             header('Content-Type: application/pdf');

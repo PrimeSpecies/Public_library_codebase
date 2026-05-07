@@ -203,7 +203,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
     exit();
 
 }elseif( $action === 'download-doc'){
-     $fileId       = $_GET['id'] ?? null;
+    $fileId       = $_GET['id'] ?? null;
     $userId       = $_SESSION['user_id'] ?? null;
 
     if (!$fileId || !$userId) die("Unauthorized");
@@ -218,14 +218,24 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
         $title = $doc['title'] ?? 'document';
 
         if (str_starts_with($url, 'https://')) {
-            // Add fl_attachment for forced download
-            $downloadUrl = str_replace(
-                '/raw/upload/',
-                '/raw/upload/fl_attachment:' . urlencode($title) . '/',
-                $url
-            );
-            header('Location: ' . $downloadUrl);
-            exit;
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_SSL_VERIFYPEER => false,
+            ]);
+            $content  = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode === 200 && $content) {
+                if (ob_get_level()) ob_end_clean();
+                header('Content-Type: application/pdf');
+                header('Content-Disposition: attachment; filename="' . $title . '.pdf"');
+                header('Content-Length: ' . strlen($content));
+                echo $content;
+                exit;
+            }
         }
 
         if (file_exists($url)) {
@@ -254,7 +264,10 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
     $inCatalog    = $catalogModel->exists($userId, $fileId);
 
     if ($doc && ($doc['is_public'] || $inCatalog)) {
-        echo json_encode(['success' => true, 'url' => $doc['file_path']]);
+        echo json_encode([
+            'success' => true,
+            'url'     => 'index.php?action=view-doc&id=' . $fileId
+        ]);
     } else {
         echo json_encode(['success' => false]);
     }
