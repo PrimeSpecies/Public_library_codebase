@@ -155,13 +155,32 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
     header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? 'index.php'));
     exit;
 
+}elseif ( $action === 'test-cloudinary'){
+    header('Content-Type: application/json');
+    $service = new \App\Services\CloudinaryService();
+    
+    // Test with a small dummy file
+    $tmpFile = tempnam(sys_get_temp_dir(), 'test_');
+    file_put_contents($tmpFile, '%PDF-1.4 test');
+    
+    $url = $service->upload($tmpFile, 'test_upload.pdf');
+    @unlink($tmpFile);
+    
+    echo json_encode([
+        'success' => (bool)$url,
+        'url'     => $url,
+        'cloud'   => getenv('CLOUDINARY_CLOUD'),
+        'key_set' => !empty(getenv('CLOUDINARY_KEY')),
+        'secret_set' => !empty(getenv('CLOUDINARY_SECRET')),
+    ]);
+    exit;
 }elseif ($action === 'reset-password') {
     // Phase 3: Update password (if OTP was verified)
     $authController->resetPassword(); 
     exit();
 
 }elseif( $action === 'download-doc'){
-    $fileId       = $_GET['id'] ?? null;
+  $fileId       = $_GET['id'] ?? null;
     $userId       = $_SESSION['user_id'] ?? null;
 
     if (!$fileId || !$userId) die("Unauthorized");
@@ -172,18 +191,26 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
     $inCatalog    = $catalogModel->exists($userId, $fileId);
 
     if ($doc && ($doc['is_public'] || $inCatalog)) {
-        $url = $doc['file_path'];
-        // For Cloudinary URLs, redirect with download flag
+        $url   = $doc['file_path'];
+        $title = $doc['title'] ?? 'document';
+
         if (str_starts_with($url, 'https://')) {
-            // Add fl_attachment to force download on Cloudinary
-            $downloadUrl = str_replace('/upload/', '/upload/fl_attachment/', $url);
-            header('Location: ' . $downloadUrl);
-            exit;
+            // Fetch from Cloudinary and stream as download
+            $content = file_get_contents($url);
+            if ($content) {
+                if (ob_get_level()) ob_end_clean();
+                header('Content-Type: application/pdf');
+                header('Content-Disposition: attachment; filename="' . $title . '.pdf"');
+                header('Content-Length: ' . strlen($content));
+                echo $content;
+                exit;
+            }
         }
-        // Local file fallback
+
         if (file_exists($url)) {
+            if (ob_get_level()) ob_end_clean();
             header('Content-Type: application/pdf');
-            header('Content-Disposition: attachment; filename="' . ($doc['title'] ?? 'document') . '.pdf"');
+            header('Content-Disposition: attachment; filename="' . $title . '.pdf"');
             header('Content-Length: ' . filesize($url));
             readfile($url);
             exit;

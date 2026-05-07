@@ -811,17 +811,24 @@ async function openPreview(id, title) {
     }
 }
 
-function downloadDoc() {
+async function downloadDoc() {
     if (!_currentDocUrl) return;
-    const a = document.createElement('a');
-    a.href     = _currentDocUrl;
-    a.download = (_currentDocTitle || 'document') + '.pdf';
-    a.target   = '_blank';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    try {
+        const res    = await fetch(_currentDocUrl);
+        const blob   = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a      = document.createElement('a');
+        a.href       = blobUrl;
+        a.download   = (_currentDocTitle || 'document') + '.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+        // Fallback — open in new tab if blob fetch fails (CORS)
+        window.open(_currentDocUrl, '_blank');
+    }
 }
-
 
 
 /* ── SIDEBAR (mobile) ── */
