@@ -156,22 +156,45 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
     exit;
 
 }elseif ( $action === 'test-cloudinary'){
-    header('Content-Type: application/json');
-    $service = new \App\Services\CloudinaryService();
-    
-    // Test with a small dummy file
-    $tmpFile = tempnam(sys_get_temp_dir(), 'test_');
-    file_put_contents($tmpFile, '%PDF-1.4 test');
-    
-    $url = $service->upload($tmpFile, 'test_upload.pdf');
+     header('Content-Type: application/json');
+
+    $timestamp = time();
+    $cloud     = getenv('CLOUDINARY_CLOUD');
+    $key       = getenv('CLOUDINARY_KEY');
+    $secret    = getenv('CLOUDINARY_SECRET');
+    $publicId  = 'documents/test_' . $timestamp;
+
+    $params    = ['public_id' => $publicId, 'timestamp' => $timestamp];
+    ksort($params);
+    $sigString = '';
+    foreach ($params as $k => $v) $sigString .= $k . '=' . $v . '&';
+    $sigString = rtrim($sigString, '&') . $secret;
+    $signature = sha1($sigString);
+
+    $tmpFile = tempnam(sys_get_temp_dir(), 'test_') . '.pdf';
+    file_put_contents($tmpFile, '%PDF-1.4 test content');
+
+    $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloud}/raw/upload");
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => [
+            'file'      => new \CURLFile($tmpFile, 'application/pdf', 'test.pdf'),
+            'public_id' => $publicId,
+            'timestamp' => $timestamp,
+            'api_key'   => $key,
+            'signature' => $signature,
+        ],
+    ]);
+
+    $raw      = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
     @unlink($tmpFile);
-    
+
     echo json_encode([
-        'success' => (bool)$url,
-        'url'     => $url,
-        'cloud'   => getenv('CLOUDINARY_CLOUD'),
-        'key_set' => !empty(getenv('CLOUDINARY_KEY')),
-        'secret_set' => !empty(getenv('CLOUDINARY_SECRET')),
+        'http_code' => $httpCode,
+        'response'  => json_decode($raw, true),
     ]);
     exit;
 }elseif ($action === 'reset-password') {
