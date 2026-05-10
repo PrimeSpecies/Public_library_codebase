@@ -18,6 +18,8 @@ public function upload($localPath, $userId, $fileName) {
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST           => true,
+        CURLOPT_TIMEOUT        => 30,        // ← fail after 30s
+        CURLOPT_CONNECTTIMEOUT => 10,        // ← fail to connect after 10s
         CURLOPT_HTTPHEADER     => [
             'Authorization: Bearer ' . $this->key,
             'x-upsert: true',
@@ -32,13 +34,12 @@ public function upload($localPath, $userId, $fileName) {
     $curlErr  = curl_error($ch);
     curl_close($ch);
 
-    error_log("Supabase [{$httpCode}]: {$raw}, curl_err={$curlErr}");
+    error_log("Supabase [{$httpCode}] err=[{$curlErr}] response=[{$raw}]");
 
     if ($httpCode === 200 || $httpCode === 201) {
         return "{$this->url}/storage/v1/object/public/{$this->bucket}/{$fileKey}";
     }
 
-    error_log("Supabase Upload Error [{$httpCode}]: " . $raw);
     return false;
 }
     public function delete($fileUrl) {
