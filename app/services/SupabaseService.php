@@ -11,36 +11,36 @@ class SupabaseService {
         $this->key    = getenv('SUPABASE_KEY');
         $this->bucket = getenv('SUPABASE_BUCKET');
     }
+public function upload($localPath, $userId, $fileName) {
+    $fileKey  = $userId . '/' . $fileName;
+    $fileSize = filesize($localPath);
+    $fh       = fopen($localPath, 'rb');
 
-    public function upload($localPath, $userId, $fileName) {
-        $fileKey = $userId . '/' . $fileName;
-        $content = file_get_contents($localPath);
+    $ch = curl_init("{$this->url}/storage/v1/object/{$this->bucket}/{$fileKey}");
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_PUT            => true,
+        CURLOPT_INFILE         => $fh,
+        CURLOPT_INFILESIZE     => $fileSize,
+        CURLOPT_HTTPHEADER     => [
+            'Authorization: Bearer ' . $this->key,
+            'Content-Type: application/pdf',
+            'x-upsert: true',
+        ],
+    ]);
 
-        $ch = curl_init("{$this->url}/storage/v1/object/{$this->bucket}/{$fileKey}");
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST           => true,
-            CURLOPT_HTTPHEADER     => [
-                'Authorization: Bearer ' . $this->key,
-                'Content-Type: application/pdf',
-                'x-upsert: true',
-            ],
-            CURLOPT_POSTFIELDS => $content,
-        ]);
+    $raw      = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    fclose($fh);
 
-        $raw      = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpCode === 200 || $httpCode === 201) {
-            // Return public URL
-            return "{$this->url}/storage/v1/object/public/{$this->bucket}/{$fileKey}";
-        }
-
-        error_log("Supabase Upload Error [{$httpCode}]: " . $raw);
-        return false;
+    if ($httpCode === 200 || $httpCode === 201) {
+        return "{$this->url}/storage/v1/object/public/{$this->bucket}/{$fileKey}";
     }
 
+    error_log("Supabase Upload Error [{$httpCode}]: " . $raw);
+    return false;
+}
     public function delete($fileUrl) {
         // Extract file key from URL
         $fileKey = str_replace(
