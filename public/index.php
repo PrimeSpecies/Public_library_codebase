@@ -324,6 +324,27 @@ elseif( $action === 'check-pdf-raw'){
 }elseif ($action === 'read-log') {
     echo nl2br(file_get_contents('/tmp/supabase_debug.txt'));
     exit;
+}elseif ($action === 'debug-bookmark') {
+    header('Content-Type: application/json');
+    $fileId       = $_GET['id'] ?? null;
+    $userId       = $_SESSION['user_id'] ?? null;
+    $docModel     = new Document();
+    $catalogModel = new Catalog();
+    
+    $doc       = $docModel->findById($fileId);
+    $inCatalog = $catalogModel->exists($userId, $fileId);
+    
+    // Try adding
+    $result = $catalogModel->addToFileCatalog($userId, $fileId, null, $doc['title'] ?? 'test');
+    
+    echo json_encode([
+        'user_id'   => $userId,
+        'file_id'   => $fileId,
+        'doc_found' => (bool)$doc,
+        'in_catalog'=> $inCatalog,
+        'add_result'=> $result,
+    ]);
+    exit;
 }elseif ($action === 'verify-email') {
     $authController->verifyEmail();
     exit();
