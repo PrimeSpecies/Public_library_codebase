@@ -13,61 +13,52 @@ class FileService {
         $this->catalogModel  = new Catalog();
     }
 
- public function store($file, $userId, $metadata = []) {
-    $baseDir   = dirname(__DIR__, 2);
-    $uploadDir = $baseDir . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR
-               . 'uploads' . DIRECTORY_SEPARATOR . 'documents' . DIRECTORY_SEPARATOR
-               . $userId . DIRECTORY_SEPARATOR;
-
-    if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-
-    $extension   = pathinfo($file['name'], PATHINFO_EXTENSION);
-    $hashedName  = bin2hex(random_bytes(16)) . '.' . $extension;
-    $destination = $uploadDir . $hashedName;
-
-    if (!move_uploaded_file($file['tmp_name'], $destination)) {
-        return false;
-    }
+public function store($file, $userId, $metadata = []) {
+    $extension  = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $hashedName = bin2hex(random_bytes(16)) . '.' . $extension;
+    $tmpPath    = $file['tmp_name']; // use tmp file directly
 
     $isPublic = ($metadata['is_public'] === true
               || $metadata['is_public'] === 1
               || $metadata['is_public'] === '1');
 
-   // Upload to Supabase
-$supabase = new \App\Services\SupabaseService();
-$fileUrl  = $supabase->upload($destination, $userId, $hashedName);
+    // Upload directly from tmp file to Supabase
+    $supabase = new \App\Services\SupabaseService();
+    $fileUrl  = $supabase->upload($tmpPath, $userId, $hashedName);
 
-error_log("Supabase URL: " . ($fileUrl ?: 'FAILED'));
-error_log("HTTP destination: " . $destination);
-
-if (!$fileUrl) {
-    error_log("Supabase upload failed for: " . $destination);
-}
-
-$fileId = $this->documentModel->create([
-    'user_id'      => $userId,
-    'file_path'    => $fileUrl ?: $destination,
-    'title'        => $metadata['title'],
-    'is_public'    => $isPublic,
-    'description'  => $metadata['description'] ?? '',
-    'tags'         => $metadata['tags'] ?? '',
-    'folder_id'    => $metadata['folder_id'] ?? null,
-    'content_text' => ''
-]);
-
-    if (!$fileId) return false;
-
-    // Queue text extraction from local file
-    if (strtolower($extension) === 'pdf') {
-        $this->queueExtraction($fileId, $destination);
+    if (!$fileUrl) {
+        error_log("Supabase upload failed for user {$userId}");
+        return false;
     }
 
+    // Create DB record
+    $fileId = $this->documentModel->create([
+        'user_id'      => $userId,
+        'file_path'    => $fileUrl,
+        'title'        => $metadata['title'],
+        'is_public'    => $isPublic,
+        'description'  => $metadata['description'] ?? '',
+        'tags'         => $metadata['tags'] ?? '',
+        'folder_id'    => $metadata['folder_id'] ?? null,
+        'content_text' => ''
+    ]);
+
+    if (!$fileId) {
+        error_log("Document::create() failed for user {$userId}");
+        return false;
+    }
+
+    // Link to catalog
     $folderId = !empty($metadata['folder_id']) ? (int)$metadata['folder_id'] : null;
     $this->catalogModel->addToFileCatalog($userId, $fileId, $folderId, $metadata['title']);
 
+    // Queue text extraction
+    if (strtolower($extension) === 'pdf') {
+        $this->queueExtraction($fileId, $tmpPath);
+    }
+
     return $fileId;
 }
-
 private function queueExtraction($fileId, $filePath) {
     $queueDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'queue';
     if (!is_dir($queueDir)) mkdir($queueDir, 0755, true);
