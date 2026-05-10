@@ -16,27 +16,32 @@ class DocumentController {
         $this->catalogModel = new Catalog();
     }
 
-    public function bookmark() {
-        if (isset($_GET['id'])) {
-            $userId = $_SESSION['user_id'] ?? null;
-            $fileId = $_GET['id'];
+public function bookmark() {
+    if (isset($_GET['id'])) {
+        $userId = $_SESSION['user_id'] ?? null;
+        $fileId = $_GET['id'];
 
-            if (!$userId) {
-                header("Location: index.php?action=login");
-                exit;
-            }
+        if (!$userId) {
+            header("Location: index.php?action=login");
+            exit;
+        }
 
-            try {
-                $success = $this->fileService->bookmarkToCatalog($userId, $fileId);
-                header("Location: index.php?action=dashboard&msg=" . ($success ? "success" : "error"));
-                exit;
-            } catch (\Exception $e) {
-                header("Location: index.php?action=dashboard&msg=error");
-                exit;
-            }
+        // Already in catalog — just redirect with success
+        if ($this->catalogModel->exists($userId, $fileId)) {
+            header("Location: index.php?action=dashboard&msg=success");
+            exit;
+        }
+
+        try {
+            $success = $this->fileService->bookmarkToCatalog($userId, $fileId);
+            header("Location: index.php?action=dashboard&msg=" . ($success ? "success" : "error"));
+            exit;
+        } catch (\Exception $e) {
+            header("Location: index.php?action=dashboard&msg=error");
+            exit;
         }
     }
-
+}
     // Consolidated remove method
     public function remove() {
         header('Content-Type: application/json');

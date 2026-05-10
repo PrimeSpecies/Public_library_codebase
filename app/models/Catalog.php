@@ -17,13 +17,11 @@ class Catalog {
      * Link a file to a user's personal catalog.
      */
 public function addToFileCatalog($userId, $fileId, $folderId = null, $displayName = null) {
-    // We are now explicitly handling the columns
     $sql = "INSERT INTO catalog (user_id, document_id, folder_id, custom_display_name, created_at)
-            VALUES (:user_id, :document_id, :folder_id, :display_name, CURRENT_TIMESTAMP)";
+            VALUES (:user_id, :document_id, :folder_id, :display_name, CURRENT_TIMESTAMP)
+            ON CONFLICT (user_id, document_id) DO NOTHING";
 
     $stmt = $this->db->prepare($sql);
-
-    // We pass null for folder_id and display_name if they aren't provided
     return $stmt->execute([
         ':user_id'      => $userId,
         ':document_id'  => $fileId,
