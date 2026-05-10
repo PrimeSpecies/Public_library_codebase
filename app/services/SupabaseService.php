@@ -12,6 +12,13 @@ class SupabaseService {
         $this->bucket = getenv('SUPABASE_BUCKET');
     }
 public function upload($localPath, $userId, $fileName) {
+
+    error_log("Supabase upload called: path={$localPath}, exists=" . (file_exists($localPath) ? 'yes' : 'no'));
+    
+    if (!file_exists($localPath)) {
+        error_log("Supabase: file does not exist at {$localPath}");
+        return false;
+    }
     $fileKey = $userId . '/' . $fileName;
 
     $ch = curl_init("{$this->url}/storage/v1/object/{$this->bucket}/{$fileKey}");
