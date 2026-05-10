@@ -14,6 +14,15 @@ class FileService {
     }
 
 public function store($file, $userId, $metadata = []) {
+
+  file_put_contents('/tmp/supabase_debug.txt',
+        date('Y-m-d H:i:s') . " store() called\n" .
+        " file[name]=" . ($file['name'] ?? 'null') . "\n" .
+        " file[tmp_name]=" . ($file['tmp_name'] ?? 'null') . "\n" .
+        " file[error]=" . ($file['error'] ?? 'null') . "\n" .
+        " userId={$userId}\n",
+        FILE_APPEND
+    );
     $extension  = pathinfo($file['name'], PATHINFO_EXTENSION);
     $hashedName = bin2hex(random_bytes(16)) . '.' . $extension;
     $tmpPath    = $file['tmp_name']; // use tmp file directly
@@ -22,6 +31,7 @@ public function store($file, $userId, $metadata = []) {
               || $metadata['is_public'] === 1
               || $metadata['is_public'] === '1');
 
+              
     // Upload directly from tmp file to Supabase
     $supabase = new \App\Services\SupabaseService();
     $fileUrl  = $supabase->upload($tmpPath, $userId, $hashedName);
