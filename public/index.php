@@ -250,6 +250,32 @@ elseif( $action === 'check-pdf-raw'){
     echo "First 10 bytes: " . bin2hex(file_get_contents($path, false, null, 0, 10));
     exit;
     
+}elseif ($action === 'debug-supabase') {
+    header('Content-Type: application/json');
+    $url    = getenv('SUPABASE_URL');
+    $key    = getenv('SUPABASE_KEY');
+    $bucket = getenv('SUPABASE_BUCKET');
+
+    // List all files in bucket
+    $ch = curl_init("{$url}/storage/v1/object/list/{$bucket}");
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_HTTPHEADER     => [
+            'Authorization: Bearer ' . $key,
+            'Content-Type: application/json',
+        ],
+        CURLOPT_POSTFIELDS => json_encode([
+            'limit'  => 100,
+            'offset' => 0,
+            'prefix' => '',
+        ]),
+    ]);
+    $raw = curl_exec($ch);
+    curl_close($ch);
+
+    echo $raw;
+    exit;
 }elseif ($action === 'verify-email') {
     $authController->verifyEmail();
     exit();
