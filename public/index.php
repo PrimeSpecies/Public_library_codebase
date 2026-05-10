@@ -276,6 +276,51 @@ elseif( $action === 'check-pdf-raw'){
 
     echo $raw;
     exit;
+}elseif ($action === 'debug-supabase-upload') {
+    header('Content-Type: application/json');
+    
+    $url    = getenv('SUPABASE_URL');
+    $key    = getenv('SUPABASE_KEY');
+    $bucket = getenv('SUPABASE_BUCKET');
+    
+    // Create a tiny test PDF
+    $tmpFile = tempnam(sys_get_temp_dir(), 'test_') . '.pdf';
+    file_put_contents($tmpFile, '%PDF-1.4 test');
+    $fileSize = filesize($tmpFile);
+    $fh       = fopen($tmpFile, 'rb');
+
+    $endpoint = "{$url}/storage/v1/object/{$bucket}/test/test.pdf";
+    
+    $ch = curl_init($endpoint);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_PUT            => true,
+        CURLOPT_INFILE         => $fh,
+        CURLOPT_INFILESIZE     => $fileSize,
+        CURLOPT_HTTPHEADER     => [
+            'Authorization: Bearer ' . $key,
+            'Content-Type: application/pdf',
+            'x-upsert: true',
+        ],
+    ]);
+
+    $raw      = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlErr  = curl_error($ch);
+    curl_close($ch);
+    fclose($fh);
+    @unlink($tmpFile);
+
+    echo json_encode([
+        'endpoint'  => $endpoint,
+        'http_code' => $httpCode,
+        'response'  => json_decode($raw, true),
+        'curl_error'=> $curlErr,
+        'url_set'   => !empty($url),
+        'key_set'   => !empty($key),
+        'bucket_set'=> !empty($bucket),
+    ]);
+    exit;
 }elseif ($action === 'verify-email') {
     $authController->verifyEmail();
     exit();
