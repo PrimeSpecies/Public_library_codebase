@@ -37,6 +37,9 @@ class FileService {
 $supabase = new \App\Services\SupabaseService();
 $fileUrl  = $supabase->upload($destination, $userId, $hashedName);
 
+error_log("Supabase URL: " . ($fileUrl ?: 'FAILED'));
+error_log("HTTP destination: " . $destination);
+
 if (!$fileUrl) {
     error_log("Supabase upload failed for: " . $destination);
 }
