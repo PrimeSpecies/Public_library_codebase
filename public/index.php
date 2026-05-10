@@ -79,33 +79,6 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
     $folderController = new \App\Controllers\FolderController();
     $folderController->deleteFolder();
 
-}elseif ($action === 'view-doc') {
-    $fileId       = $_GET['id'] ?? null;
-    $userId       = $_SESSION['user_id'] ?? null;
-    $docModel     = new Document();
-    $catalogModel = new Catalog();
-    $doc          = $docModel->findById($fileId);
-    $inCatalog    = $userId ? $catalogModel->exists($userId, $fileId) : false;
-
-    if ($doc && ($doc['is_public'] || $inCatalog)) {
-        $path = $doc['file_path'];
-
-        if (str_starts_with($path, 'https://')) {
-            // Redirect directly to Cloudinary URL
-            header('Location: ' . $path);
-            exit;
-        }
-
-        if (file_exists($path)) {
-            if (ob_get_level()) ob_end_clean();
-            header('Content-Type: application/pdf');
-            header('Content-Disposition: inline; filename="' . basename($path) . '"');
-            header('Content-Length: ' . filesize($path));
-            readfile($path);
-            exit;
-        }
-    }
-    die("Access Denied");
 }elseif ($action === 'check-doc'){
     $fileId = $_GET['id'] ?? null;
     $doc = (new Document())->findById($fileId);
@@ -178,54 +151,38 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
     header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? 'index.php'));
     exit;
 
-}elseif ( $action === 'test-cloudinary'){
-     header('Content-Type: application/json');
-
-    $timestamp = time();
-    $cloud     = getenv('CLOUDINARY_CLOUD');
-    $key       = getenv('CLOUDINARY_KEY');
-    $secret    = getenv('CLOUDINARY_SECRET');
-    $publicId  = 'documents/test_' . $timestamp;
-
-    $params    = ['public_id' => $publicId, 'timestamp' => $timestamp];
-    ksort($params);
-    $sigString = '';
-    foreach ($params as $k => $v) $sigString .= $k . '=' . $v . '&';
-    $sigString = rtrim($sigString, '&') . $secret;
-    $signature = sha1($sigString);
-
-    $tmpFile = tempnam(sys_get_temp_dir(), 'test_') . '.pdf';
-    file_put_contents($tmpFile, '%PDF-1.4 test content');
-
-    $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloud}/raw/upload");
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST           => true,
-        CURLOPT_POSTFIELDS     => [
-            'file'      => new \CURLFile($tmpFile, 'application/pdf', 'test.pdf'),
-            'public_id' => $publicId,
-            'timestamp' => $timestamp,
-            'api_key'   => $key,
-            'signature' => $signature,
-        ],
-    ]);
-
-    $raw      = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    @unlink($tmpFile);
-
-    echo json_encode([
-        'http_code' => $httpCode,
-        'response'  => json_decode($raw, true),
-    ]);
-    exit;
 }elseif ($action === 'reset-password') {
     // Phase 3: Update password (if OTP was verified)
     $authController->resetPassword(); 
     exit();
 
-}elseif($action === "download-doc") {
+}elseif ($action === 'view-doc') {
+    $fileId       = $_GET['id'] ?? null;
+    $userId       = $_SESSION['user_id'] ?? null;
+    $docModel     = new Document();
+    $catalogModel = new Catalog();
+    $doc          = $docModel->findById($fileId);
+    $inCatalog    = $userId ? $catalogModel->exists($userId, $fileId) : false;
+
+    if ($doc && ($doc['is_public'] || $inCatalog)) {
+        $path = $doc['file_path'];
+        if (str_starts_with($path, 'https://')) {
+            header('Location: ' . $path);
+            exit;
+        }
+        if (file_exists($path)) {
+            if (ob_get_level()) ob_end_clean();
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: inline; filename="' . basename($path) . '"');
+            header('Content-Length: ' . filesize($path));
+            readfile($path);
+            exit;
+        }
+    }
+    die("Access Denied");
+}
+
+elseif ($action === 'download-doc') {
     $fileId       = $_GET['id'] ?? null;
     $userId       = $_SESSION['user_id'] ?? null;
     $docModel     = new Document();
@@ -236,13 +193,11 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
     if ($doc && ($doc['is_public'] || $inCatalog)) {
         $url   = $doc['file_path'];
         $title = $doc['title'] ?? 'document';
-
         if (str_starts_with($url, 'https://')) {
-            // Redirect directly to Cloudinary URL
-            header('Location: ' . $url);
+            // Append download query param for Supabase
+            header('Location: ' . $url . '?download=' . urlencode($title . '.pdf'));
             exit;
         }
-
         if (file_exists($url)) {
             if (ob_get_level()) ob_end_clean();
             header('Content-Type: application/pdf');
@@ -253,7 +208,9 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
         }
     }
     die("Unauthorized");
-}elseif($action === 'get-doc-url') {
+}
+
+elseif ($action === 'get-doc-url') {
     header('Content-Type: application/json');
     $fileId       = $_GET['id'] ?? null;
     $userId       = $_SESSION['user_id'] ?? null;

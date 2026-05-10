@@ -33,15 +33,12 @@ class FileService {
               || $metadata['is_public'] === 1
               || $metadata['is_public'] === '1');
 
-    // Upload to Cloudinary
-$cloudinary = new \App\Services\CloudinaryService();
-$fileUrl    = $cloudinary->upload($destination, $hashedName);
-
-error_log("Cloudinary URL: " . ($fileUrl ?: 'FAILED'));
-error_log("Destination: " . $destination);
+   // Upload to Supabase
+$supabase = new \App\Services\SupabaseService();
+$fileUrl  = $supabase->upload($destination, $userId, $hashedName);
 
 if (!$fileUrl) {
-    error_log("Cloudinary upload failed for: " . $destination);
+    error_log("Supabase upload failed for: " . $destination);
 }
 
 $fileId = $this->documentModel->create([
