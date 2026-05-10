@@ -8,14 +8,17 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy composer files first
 COPY composer.json composer.lock /var/www/html/
 
-# Install dependencies
 WORKDIR /var/www/html
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# Copy rest of project
 COPY . /var/www/html/
 
-# Point Apache to public/
+# Increase PHP upload limits
+RUN echo "upload_max_filesize = 50M" > /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "post_max_size = 50M" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "max_execution_time = 120" >> /usr/local/etc/php/conf.d/uploads.ini
+
 RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
 RUN chown -R www-data:www-data /var/www/html \
