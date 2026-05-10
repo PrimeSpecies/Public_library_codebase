@@ -122,4 +122,17 @@ return [
 'landing.footer_cookies'       => 'Politique des cookies',
 'landing.footer_rights'        => 'Tous droits réservés.',
 
+'login.page_title'      => 'Connexion',
+'login.welcome'         => 'Bon retour',
+'login.subtitle'        => 'Connectez-vous pour accéder à votre bibliothèque',
+'login.email_label'     => 'Adresse e-mail',
+'login.email_ph'        => 'exemple@email.com',
+'login.password_label'  => 'Mot de passe',
+'login.password_ph'     => 'Entrez votre mot de passe',
+'login.forgot_password' => 'Mot de passe oublié ?',
+'login.submit'          => 'Se connecter',
+'login.no_account'      => 'Nouvel utilisateur ?',
+'login.register_link'   => 'Créer un compte ici',
+'login.password_updated'=> 'Mot de passe mis à jour. Veuillez vous connecter.',
+
 ];

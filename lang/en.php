@@ -122,4 +122,16 @@ return [
 'landing.footer_rights'        => 'All rights reserved.',
 'preview.download' => 'Download',
 
+'login.page_title'      => 'Login',
+'login.welcome'         => 'Welcome Back',
+'login.subtitle'        => 'Login to access your research library',
+'login.email_label'     => 'Email Address',
+'login.email_ph'        => 'example@email.com',
+'login.password_label'  => 'Password',
+'login.password_ph'     => 'Enter your password',
+'login.forgot_password' => 'Forgot Password?',
+'login.submit'          => 'Login',
+'login.no_account'      => 'New user?',
+'login.register_link'   => 'Create an account here',
+'login.password_updated'=> 'Password updated. Please log in.',
 ];
