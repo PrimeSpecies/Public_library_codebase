@@ -13,6 +13,11 @@ class SupabaseService {
     }
 public function upload($localPath, $userId, $fileName) {
 
+file_put_contents('/tmp/supabase_debug.txt', 
+        date('Y-m-d H:i:s') . " upload called: {$localPath}\n", 
+        FILE_APPEND
+    );
+
     error_log("Supabase upload called: path={$localPath}, exists=" . (file_exists($localPath) ? 'yes' : 'no'));
     
     if (!file_exists($localPath)) {

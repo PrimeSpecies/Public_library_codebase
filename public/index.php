@@ -321,6 +321,9 @@ elseif( $action === 'check-pdf-raw'){
         'bucket_set'=> !empty($bucket),
     ]);
     exit;
+}elseif ($action === 'read-log') {
+    echo nl2br(file_get_contents('/tmp/supabase_debug.txt'));
+    exit;
 }elseif ($action === 'verify-email') {
     $authController->verifyEmail();
     exit();
