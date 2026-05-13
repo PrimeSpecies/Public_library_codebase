@@ -408,9 +408,9 @@ $currentFolderId = $_GET['folder_id'] ?? null;
         </span>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-        <button id="download-btn" onclick="downloadDoc()" style="background:var(--accent-soft);color:var(--accent);border:none;padding:7px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.8rem;font-family:var(--sans);display:flex;align-items:center;gap:6px;">
+        <!-- <button id="download-btn" onclick="downloadDoc()" style="background:var(--accent-soft);color:var(--accent);border:none;padding:7px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.8rem;font-family:var(--sans);display:flex;align-items:center;gap:6px;">
             <i data-lucide="download" style="width:14px;"></i> <?= __('preview.download') ?>
-        </button>
+        </button> -->
         <button onclick="closePreview()" style="background:var(--red-soft);color:var(--red);border:none;padding:7px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.8rem;font-family:var(--sans);white-space:nowrap;">
             ✕ <?= __('preview.close') ?>
         </button>
@@ -624,6 +624,15 @@ $currentFolderId = $_GET['folder_id'] ?? null;
                             <button onclick="resetUI()" style="background:none;border:none;color:var(--text-faint);font-weight:600;cursor:pointer;font-size:0.85rem;font-family:var(--sans);">
                                 <?= __('dashboard.discard') ?>
                             </button>
+                            <div id="upload-progress-wrap" style="display:none;margin-top:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="font-size:0.75rem;font-weight:600;color:var(--text-muted);" id="upload-progress-label">Uploading…</span>
+        <span style="font-size:0.75rem;font-weight:700;color:var(--accent);" id="upload-progress-pct">0%</span>
+    </div>
+    <div style="background:var(--border);border-radius:99px;height:6px;overflow:hidden;">
+        <div id="upload-progress-bar" style="height:100%;width:0%;background:var(--accent);border-radius:99px;transition:width 0.2s;"></div>
+    </div>
+</div>
                             <button id="upload-btn" style="background:var(--accent);color:white;border:none;padding:10px 24px;border-radius:8px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.875rem;font-family:var(--sans);">
                                 <i data-lucide="check" style="width:16px;"></i> <?= __('dashboard.publish') ?>
                             </button>
@@ -949,27 +958,81 @@ function resetUI() {
     fileInput.value = '';
     actionBar.classList.remove('visible');
     fileStatus.innerText = 'Drag PDF here or click to browse';
-}
-uploadBtn.onclick = () => {
+}uploadBtn.onclick = () => {
     const file = fileInput.files[0];
     if (!file || !titleInput.value) return;
+
     uploadBtn.disabled = true;
     uploadBtn.innerHTML = '<i data-lucide="loader" style="width:16px;"></i> Uploading…';
     lucide.createIcons();
+
+    // Show progress bar
+    const progressWrap  = document.getElementById('upload-progress-wrap');
+    const progressBar   = document.getElementById('upload-progress-bar');
+    const progressPct   = document.getElementById('upload-progress-pct');
+    const progressLabel = document.getElementById('upload-progress-label');
+    progressWrap.style.display = 'block';
+    progressBar.style.width    = '0%';
+    progressPct.textContent    = '0%';
+
     const fd = new FormData();
     fd.append('document', file);
     fd.append('title', titleInput.value);
     fd.append('description', document.getElementById('doc-desc').value);
     fd.append('tags', document.getElementById('doc-tags').value);
     fd.append('is_public', isPublic ? '1' : '0');
-    fetch('index.php?action=upload-doc', { method: 'POST', body: fd })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) location.reload();
-            else { showToast(data.message || 'Upload failed.', 'error'); uploadBtn.disabled = false; uploadBtn.innerHTML = '<i data-lucide="check" style="width:16px;"></i> Publish to Library'; lucide.createIcons(); }
-        });
+
+    const xhr = new XMLHttpRequest();
+
+    // Progress event
+    xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+            const pct = Math.round((e.loaded / e.total) * 100);
+            progressBar.style.width = pct + '%';
+            progressPct.textContent = pct + '%';
+
+            if (pct === 100) {
+                progressLabel.textContent = 'Processing…';
+            }
+        }
+    });
+
+    xhr.addEventListener('load', () => {
+        try {
+            const data = JSON.parse(xhr.responseText);
+            if (data.success) {
+                progressBar.style.width    = '100%';
+                progressPct.textContent    = '100%';
+                progressLabel.textContent  = 'Done!';
+                setTimeout(() => location.reload(), 500);
+            } else {
+                showToast(data.message || 'Upload failed.', 'error');
+                resetUploadUI();
+            }
+        } catch (err) {
+            showToast('Upload failed.', 'error');
+            resetUploadUI();
+        }
+    });
+
+    xhr.addEventListener('error', () => {
+        showToast('Upload failed.', 'error');
+        resetUploadUI();
+    });
+
+    xhr.open('POST', 'index.php?action=upload-doc');
+    xhr.send(fd);
 };
 
+function resetUploadUI() {
+    uploadBtn.disabled = false;
+    uploadBtn.innerHTML = '<i data-lucide="check" style="width:16px;"></i> Publish to Library';
+    lucide.createIcons();
+    document.getElementById('upload-progress-wrap').style.display = 'none';
+    document.getElementById('upload-progress-bar').style.width = '0%';
+    document.getElementById('upload-progress-pct').textContent = '0%';
+    document.getElementById('upload-progress-label').textContent = 'Uploading…';
+}
 /* ── REMOVE FROM CATALOG ── */
 function removeFromCatalog(fileId, btn) {
     if (!confirm('Remove this document from your catalog?')) return;
