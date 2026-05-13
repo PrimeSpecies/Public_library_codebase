@@ -12,33 +12,36 @@ class FolderController {
     /**
      * Logic to create a new folder
      */
-    public function createFolder() {
-        header('Content-Type: application/json');
+public function createFolder() {
+    header('Content-Type: application/json');
+    $userId = $_SESSION['user_id'] ?? null;
 
-        $userId = $_SESSION['user_id'] ?? null;
-        $name = $_POST['name'] ?? null;
-        $parentId = !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
+    // Read from JSON body
+    $body     = json_decode(file_get_contents('php://input'), true);
+    $name     = trim($body['name'] ?? '');
+    $parentId = !empty($body['parent_id']) ? (int)$body['parent_id'] : null;
 
-        if (!$userId) {
-            http_response_code(401);
-            echo json_encode(['success' => false, 'message' => 'Unauthorized.']);
-            exit;
-        }
-
-        if (!$name) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Folder name is required.']);
-        } else {
-            try {
-                $success = $this->folderModel->create($userId, $name, $parentId);
-                echo json_encode(['success' => $success, 'message' => $success ? 'Created.' : 'Database error.']);
-            } catch (\Exception $e) {
-                http_response_code(500);
-                echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-            }
-        }
+    if (!$userId) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized.']);
         exit;
     }
+
+    if (!$name) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Folder name is required.']);
+        exit;
+    }
+
+    try {
+        $success = $this->folderModel->create($userId, $name, $parentId);
+        echo json_encode(['success' => $success, 'message' => $success ? 'Created.' : 'Database error.']);
+    } catch (\Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    }
+    exit;
+}
 public function renameFolder() {
     $id = $_POST['id'] ?? null;
     $newName = $_POST['name'] ?? null;
