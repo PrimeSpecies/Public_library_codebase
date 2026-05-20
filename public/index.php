@@ -242,6 +242,33 @@ elseif ($action === 'get-doc-url') {
         'in_catalog' => $inCatalog,
     ]);
     exit;
+}elseif ($action === 'debug-search') {
+    header('Content-Type: application/json');
+    $db    = Database::getInstance()->getConnection();
+    $query = $_GET['q'] ?? 'test';
+    $like  = '%' . $query . '%';
+
+    // Test 1: Simple ILIKE on title
+    $stmt = $db->prepare("SELECT id, title, content_text IS NOT NULL as has_content, search_vector IS NOT NULL as has_vector FROM documents WHERE title ILIKE :like LIMIT 5");
+    $stmt->execute([':like' => $like]);
+    $byTitle = $stmt->fetchAll();
+
+    // Test 2: All documents
+    $stmt2 = $db->query("SELECT id, title, LENGTH(content_text) as content_len, search_vector IS NOT NULL as has_vector FROM documents ORDER BY id DESC LIMIT 5");
+    $allDocs = $stmt2->fetchAll();
+
+    // Test 3: Raw ILIKE search
+    $stmt3 = $db->prepare("SELECT id, title FROM documents WHERE title ILIKE :like OR tags ILIKE :like2");
+    $stmt3->execute([':like' => $like, ':like2' => $like]);
+    $ilike = $stmt3->fetchAll();
+
+    echo json_encode([
+        'query'    => $query,
+        'by_title' => $byTitle,
+        'all_docs' => $allDocs,
+        'ilike'    => $ilike,
+    ]);
+    exit;
 }
 elseif( $action === 'check-pdf-raw'){
     $fileId = $_GET['id'] ?? null;
