@@ -55,13 +55,17 @@ public function move($docId, $targetFolderId, $userId) {
         ':user_id'   => $userId
     ]);
 }
-
 public function searchContent($query, $scope = 'all', $userId = null, $tags = '') {
-    // Convert query to tsquery format: "machine learning" → "machine & learning"
-    $tsQuery = implode(' & ', array_filter(array_map('trim', explode(' ', $query))));
-    $params  = [':query' => $tsQuery];
+    $like   = '%' . $query . '%';
+    $params = [':query' => $query, ':like' => $like];
 
-    $where = "to_tsquery('english', :query) @@ d.search_vector";
+    // Match either full-text vector OR title/tags ILIKE (covers docs with no extracted text)
+    $where = "(
+        (d.search_vector IS NOT NULL AND d.search_vector != '' AND plainto_tsquery('english', :query) @@ d.search_vector)
+        OR d.title ILIKE :like
+        OR d.tags  ILIKE :like2
+    )";
+    $params[':like2'] = $like;
 
     if ($scope === 'private' && $userId) {
         $where .= " AND EXISTS (SELECT 1 FROM catalog c WHERE c.document_id = d.id AND c.user_id = :user_id)";
@@ -78,18 +82,22 @@ public function searchContent($query, $scope = 'all', $userId = null, $tags = ''
         $params[':tags'] = '%' . $tags . '%';
     }
 
-    // ts_rank ranks results by relevance, ts_headline extracts snippet
     $sql = "SELECT d.id, d.title, d.tags,
-                ts_rank(d.search_vector, to_tsquery('english', :query2)) AS rank,
-                ts_headline('english', d.content_text, to_tsquery('english', :query3),
+                COALESCE(
+                    ts_rank(d.search_vector, plainto_tsquery('english', :query2)),
+                    0
+                ) AS rank,
+                ts_headline('english',
+                    COALESCE(NULLIF(d.content_text, ''), d.title),
+                    plainto_tsquery('english', :query3),
                     'MaxWords=50, MinWords=20, StartSel=[[, StopSel=]]') AS snippet
             FROM documents d
             WHERE $where
             ORDER BY rank DESC
             LIMIT 20";
 
-    $params[':query2'] = $tsQuery;
-    $params[':query3'] = $tsQuery;
+    $params[':query2'] = $query;
+    $params[':query3'] = $query;
 
     $stmt = $this->db->prepare($sql);
     $stmt->execute($params);
